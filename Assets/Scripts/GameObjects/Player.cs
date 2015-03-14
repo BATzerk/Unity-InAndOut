@@ -11,19 +11,18 @@ public class Player : MonoBehaviour {
 	float GRAVITY_FORCE = -26;
 	// References
 	Rigidbody2D rigidbody; // My physics body
-	BoxCollider2D feetSensor; // The sensor at my "feet" that determines if I'm on ground.
-	GameObject bodySprites; // All images that'll be scaled by the direction I'm facing are in here.
+	PlayerFeetSensor feetSensor; // The sensor at my "feet" that determines if I'm on ground.
+	PlayerHandSensor handSensor; // The sensor at my "hands" that determines if I can grab something in front of me.
 	GameObject DEBUG_bodySprite; // JUST the body
 	// Properties
-	bool isGrounded = true;
 	int directionFacing = 1; // Where I'm facing. -1 is left and 1 is right. It determines my X scale. No other values should be used.
 
 	void Start () {
 		// Identify components!
 		rigidbody = (GetComponent<Rigidbody2D> ());
 		foreach (Transform t in transform) {
-			if (t.name == "BodySprites") bodySprites = t.gameObject;
-			else if (t.name == "FeetSensor") feetSensor = t.GetComponent<BoxCollider2D>();
+			if (t.name == "FeetSensor") feetSensor = t.GetComponent<PlayerFeetSensor>();
+			else if (t.name == "HandSensor") handSensor = t.GetComponent<PlayerHandSensor>();
 		}
 
 		DEBUG_bodySprite = GameObject.Find ("Body");
@@ -33,38 +32,20 @@ public class Player : MonoBehaviour {
 
 	void FixedUpdate () {
 		ApplyGravity ();
-		SetIsGrounded ();
 		InputLogic ();
 		ApplyFriction ();
 		TerminalVelocity ();
 
-		if (isGrounded) DEBUG_bodySprite.renderer.material.color = Color.blue;
+		if (feetSensor.IsGrounded) DEBUG_bodySprite.renderer.material.color = Color.blue;
 		else DEBUG_bodySprite.renderer.material.color = Color.cyan;
-
-		Debug.Log ("Fixed update isGrounded  " + isGrounded);
-		isGrounded = false;
-	}
-	
-	void OnTriggerStay2D(Collider2D other) {
-		Debug.Log ("OnTriggerStay2D!");
-		isGrounded = true;
-	}
-	void OnTriggerEnter2D(Collider2D other) {
-		Debug.Log ("Trigger ENTERR");
-	}
-	void OnTriggerExit2D(Collider2D other) {
-		Debug.Log ("Trigger EXXXXXXITT");
 	}
 
 
 
 	void ApplyGravity() {
-		if (!isGrounded) {
+		//if (!isGrounded) {
 			rigidbody.velocity = new Vector2(rigidbody.velocity.x, rigidbody.velocity.y+GRAVITY_FORCE);
-		}
-	}
-	void SetIsGrounded() {
-		//feetSensor.collider2D.
+		//}
 	}
 	void InputLogic() {
 		float inputX = Input.GetAxis ("Horizontal");
@@ -84,11 +65,11 @@ public class Player : MonoBehaviour {
 			directionFacing = Sign(inputX);
 		}
 		//	Apply scale!
-		bodySprites.transform.localScale = new Vector2(directionFacing, bodySprites.transform.localScale.y);
+		this.transform.localScale = new Vector2(directionFacing, this.transform.localScale.y);
 	}
 	void ApplyFriction() {
 		// If I'm on the ground, apply basic ground friction!
-		if (isGrounded) {
+		if (feetSensor.IsGrounded) {
 			rigidbody.velocity = new Vector2(rigidbody.velocity.x*frictionGround, rigidbody.velocity.y);
 		}
 	}
@@ -102,7 +83,7 @@ public class Player : MonoBehaviour {
 
 	void Jump() {
 		// If I'm on the ground, then jump!
-		if (isGrounded) {
+		if (feetSensor.IsGrounded) {
 			rigidbody.velocity = new Vector2 (rigidbody.velocity.x, rigidbody.velocity.y - JUMP_FORCE);
 		}
 	}

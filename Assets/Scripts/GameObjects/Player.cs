@@ -9,11 +9,14 @@ public class Player : MonoBehaviour {
 	float frictionGround = 0.8f;
 	float JUMP_FORCE = -600;
 	float GRAVITY_FORCE = -26;
+	// Constants
+	const KeyCode KEYCODE_CRATE_GRAB = KeyCode.LeftShift;
 	// References
 	Rigidbody2D rigidbody; // My physics body
 	PlayerFeetSensor feetSensor; // The sensor at my "feet" that determines if I'm on ground.
 	PlayerHandSensor handSensor; // The sensor at my "hands" that determines if I can grab something in front of me.
 	GameObject DEBUG_bodySprite; // JUST the body
+	Crate crateGrabbing;
 	// Properties
 	int directionFacing = 1; // Where I'm facing. -1 is left and 1 is right. It determines my X scale. No other values should be used.
 
@@ -28,15 +31,19 @@ public class Player : MonoBehaviour {
 		DEBUG_bodySprite = GameObject.Find ("Body");
 
 		rigidbody.mass = 0.2f;
+
+		// Set initial values
+		SetCrateGrabbing (null);
 	}
 
 	void FixedUpdate () {
 		ApplyGravity ();
-		InputLogic ();
+		InputLogicMovement ();
+		InputLogicGrabbingCrates ();
 		ApplyFriction ();
 		TerminalVelocity ();
 
-		if (feetSensor.IsGrounded) DEBUG_bodySprite.renderer.material.color = Color.blue;
+		if (crateGrabbing != null) DEBUG_bodySprite.renderer.material.color = Color.blue;//feetSensor.IsGrounded
 		else DEBUG_bodySprite.renderer.material.color = Color.cyan;
 	}
 
@@ -47,9 +54,9 @@ public class Player : MonoBehaviour {
 			rigidbody.velocity = new Vector2(rigidbody.velocity.x, rigidbody.velocity.y+GRAVITY_FORCE);
 		//}
 	}
-	void InputLogic() {
+	void InputLogicMovement() {
 		float inputX = Input.GetAxis ("Horizontal");
-
+		
 		// VELOCITY
 		//	Horizontal
 		Vector3 newVelocity = new Vector2(rigidbody.velocity.x+inputX*movementSpeed, rigidbody.velocity.y);
@@ -58,7 +65,7 @@ public class Player : MonoBehaviour {
 		if (Input.GetButtonDown ("Jump")) {
 			Jump();
 		}
-
+		
 		// DIRECTION
 		//	Update directionFacing if the horizontal input is significant enough!
 		if (Mathf.Abs (inputX) > 0.05f) {
@@ -66,6 +73,22 @@ public class Player : MonoBehaviour {
 		}
 		//	Apply scale!
 		this.transform.localScale = new Vector2(directionFacing, this.transform.localScale.y);
+	}
+	void InputLogicGrabbingCrates() {
+		// NOT grabbing a crate...
+		if (crateGrabbing == null) {
+			// NEXT to a crate and just hit GRAB key?!
+			if (handSensor.CrateTouching!=null && Input.GetKeyDown(KEYCODE_CRATE_GRAB)) {
+				SetCrateGrabbing(handSensor.CrateTouching);
+			}
+		}
+		// YES grabbing a crate!
+		else {
+			// Just RELEASED GRAB key?!
+			if (Input.GetKeyUp(KEYCODE_CRATE_GRAB)) {
+				SetCrateGrabbing(null);
+			}
+		}
 	}
 	void ApplyFriction() {
 		// If I'm on the ground, apply basic ground friction!
@@ -88,6 +111,19 @@ public class Player : MonoBehaviour {
 		}
 	}
 
+
+	void SetCrateGrabbing(Crate tempCrate) {
+		// FIRST, if I'm already GRABBING a crate, tell it it's ungrabbed!
+		if (crateGrabbing != null) {
+			crateGrabbing.OnUngrabbing ();
+		}
+		// Set new crateGrabbing!
+		crateGrabbing = tempCrate;
+		// Notify crateGrabbing that it's being grabbed!
+		if (crateGrabbing != null) {
+			crateGrabbing.OnGrabbing ();
+		}
+	}
 
 
 

@@ -7,6 +7,9 @@ public class Crate : MonoBehaviour {
 //	float mass = 4;
 	// References
 	private SpriteRenderer spriteRenderer;
+	// Properties
+	private bool isGrabbing; // actually being grabbed right now
+	private bool isGrabbable; // theoretically grabbable if the player hits SHIFT key
 
 	void Start () {
 		// Set mass!
@@ -15,14 +18,38 @@ public class Crate : MonoBehaviour {
 
 		spriteRenderer = GetComponentInChildren<SpriteRenderer> ();
 
-		// I'm not grabbable by default.
-		OnUngrabbable ();
+		// Set initial values
+		isGrabbing = false;
+		isGrabbable = false;
+
+		SetColorBasedOnGrabVariables ();
+	}
+
+	private void SetColorBasedOnGrabVariables() {
+		if (isGrabbing) spriteRenderer.renderer.material.color = Color.yellow;
+		else if (isGrabbable) spriteRenderer.renderer.material.color = Color.cyan;
+		else spriteRenderer.renderer.material.color = Color.blue;
 	}
 	
 	public void OnGrabbable() {
-		spriteRenderer.renderer.material.color = Color.cyan;
+		isGrabbable = true;
+		SetColorBasedOnGrabVariables ();
 	}
 	public void OnUngrabbable() {
-		spriteRenderer.renderer.material.color = Color.blue;
+		isGrabbable = false;
+		SetColorBasedOnGrabVariables ();
+	}
+	
+	public void OnGrabbing() {
+		isGrabbing = true;
+		SetColorBasedOnGrabVariables ();
+	}
+	public void OnUngrabbing() {
+		isGrabbing = false;
+		SetColorBasedOnGrabVariables ();
 	}
 }
+
+
+
+

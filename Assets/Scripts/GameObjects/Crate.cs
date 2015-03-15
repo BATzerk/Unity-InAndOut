@@ -54,7 +54,6 @@ public class Crate : MonoBehaviour {
 		myPlayerRef = thisPlayer;
 		SetColorBasedOnGrabVariables ();
 		// Determine holdingOffsetX!
-		float targetPosX = myPlayerRef.MyRigidbody.position.x;
 		if (rigidbody.position.x < myPlayerRef.MyRigidbody.position.x) {
 			holdingOffsetX = -(myPlayerRef.BodyWidth + this.bodyWidth + GAP_TO_PLAYER) * 0.5f;
 		}
@@ -75,10 +74,12 @@ public class Crate : MonoBehaviour {
 	
 	void CrateHoldingMath() {
 		if (myPlayerRef == null) { return; }
-		// Set my position!
+		// Set my position! Note: If the player is at an angle, then we'll not just be using an x offset but both x and y.
+		float playerRot = Mathf.Deg2Rad * myPlayerRef.MyRigidbody.rotation;
 		// HACKY/TEMPORARY: this constant on player's velocity was totally eyeballed. Might be COMPLETELY off.
-		float targetPosX = (myPlayerRef.MyRigidbody.position.x+holdingOffsetX) + myPlayerRef.MyRigidbody.velocity.x/60;
-		rigidbody.position = new Vector2(targetPosX, rigidbody.position.y);
+		float targetPosX = (myPlayerRef.MyRigidbody.position.x+Mathf.Cos (playerRot)*holdingOffsetX) + myPlayerRef.MyRigidbody.velocity.x/60;
+		float targetPosY = myPlayerRef.MyRigidbody.position.y;// + Mathf.Sin (playerRot)*holdingOffsetX;
+		rigidbody.position = new Vector2(targetPosX, targetPosY);
 	}
 }
 

@@ -12,6 +12,7 @@ public class Player : MonoBehaviour {
 	float frictionGround = 0.8f;
 	float JUMP_FORCE = -600;
 	float GRAVITY_FORCE = -26;
+	private const float MAX_ROTATION = 45f; // how far my body can rotate. We don't want a strict fixed rotation at 0-- leeway is nice.
 	// Constants
 	const KeyCode KEYCODE_CRATE_GRAB = KeyCode.LeftShift;
 	// References
@@ -34,18 +35,20 @@ public class Player : MonoBehaviour {
 	//	Start
 	// ================================
 	void Start () {
+	}
+	public void Reset() {
 		// Identify components!
 		rigidbody = (GetComponent<Rigidbody2D> ());
 		foreach (Transform t in transform) {
 			if (t.name == "FeetSensor") feetSensor = t.GetComponent<PlayerFeetSensor>();
 			else if (t.name == "HandSensor") handSensor = t.GetComponent<PlayerHandSensor>();
 		}
-
+		
 		// DEBUG testing stuff. NOTE THAT A LOTTA THIS can't just be removed but will need to be replaced with "proper" implementations
 		DEBUG_bodySprite = GameObject.Find ("Body");
 		bodyWidth = DEBUG_bodySprite.renderer.bounds.size.x;
 		rigidbody.mass = 0.2f;
-
+		
 		// Set initial values
 		SetCrateHolding (null);
 	}
@@ -125,6 +128,7 @@ public class Player : MonoBehaviour {
 		ApplyGravity ();
 		ApplyFriction ();
 		TerminalVelocity ();
+		LimitRotation ();
 
 		if (crateHolding != null) DEBUG_bodySprite.renderer.material.color = Color.blue;//feetSensor.IsGrounded
 		else DEBUG_bodySprite.renderer.material.color = Color.cyan;
@@ -151,6 +155,12 @@ public class Player : MonoBehaviour {
 			Mathf.Clamp (rigidbody.velocity.x, -maxVelX,maxVelX),
 			Mathf.Clamp (rigidbody.velocity.y, -maxVelY,maxVelY)
 		);
+	}
+	void LimitRotation() {
+		// Limit how far I can rotate my rigidbody.
+		rigidbody.rotation = Mathf.Clamp (rigidbody.rotation, -MAX_ROTATION,MAX_ROTATION);
+		rigidbody.angularVelocity *= 0.7f;
+		rigidbody.angularVelocity += (-rigidbody.rotation * 2);
 	}
 
 

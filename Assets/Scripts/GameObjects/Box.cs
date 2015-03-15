@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Crate : MonoBehaviour {
+public class Box : MonoBehaviour {
 	// Constants
 	private const float GAP_TO_PLAYER = 0f;
 	// References

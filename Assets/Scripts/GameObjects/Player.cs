@@ -15,19 +15,19 @@ public class Player : MonoBehaviour {
 	float GRAVITY_FORCE = -26;
 	private const float MAX_ROTATION = 45f; // how far my body can rotate. We don't want a strict fixed rotation at 0-- leeway is nice.
 	// Constants
-	const KeyCode KEYCODE_CRATE_GRAB = KeyCode.LeftShift;
+	const KeyCode KEYCODE_BOX_GRAB = KeyCode.LeftShift;
 	// References
 	Rigidbody2D rigidbody; // My physics body
 	PlayerFeetSensor feetSensor; // The sensor at my "feet" that determines if I'm on ground.
 	PlayerHandSensor handSensor; // The sensor at my "hands" that determines if I can grab something in front of me.
 	GameObject DEBUG_bodySprite; // JUST the body
-	Crate crateHolding;
+	Box boxHolding;
 	// Properties
-	float bodyWidth; // it's exactly how wide the sprite is! Currently used for offseting crates' positions.
+	float bodyWidth; // it's exactly how wide the sprite is! Currently used for offseting boxes' positions.
 	int directionFacing = 1; // Where I'm facing. -1 is left and 1 is right. It determines my X scale. No other values should be used.
 
 	// Getters
-	private bool IsHoldingCrate { get { return crateHolding != null; } }
+	private bool IsHoldingBox { get { return boxHolding != null; } }
 	public float BodyWidth { get { return bodyWidth; } }
 	public Rigidbody2D MyRigidbody { get { return rigidbody; } }
 	
@@ -51,7 +51,7 @@ public class Player : MonoBehaviour {
 		rigidbody.mass = 0.2f;
 		
 		// Set initial values
-		SetCrateHolding (null);
+		SetBoxHolding (null);
 	}
 	
 	
@@ -60,7 +60,7 @@ public class Player : MonoBehaviour {
 	// ================================
 	void Update() {
 		InputLogicMovement ();
-		InputLogicGrabbingCrates ();
+		InputLogicGrabbingBoxes ();
 	}
 	
 	// ================================
@@ -80,12 +80,12 @@ public class Player : MonoBehaviour {
 		}
 		
 		// DIRECTION
-		//	Holding crate?!
-		if (IsHoldingCrate) {
-			// directionFacing will be respective to the crate being left/right of me.
-			directionFacing = Sign (crateHolding.MyRigidbody.position.x - rigidbody.position.x);
+		//	Holding box?!
+		if (IsHoldingBox) {
+			// directionFacing will be respective to the box being left/right of me.
+			directionFacing = Sign (boxHolding.MyRigidbody.position.x - rigidbody.position.x);
 		}
-		//	NOT holding crate...
+		//	NOT holding box...
 		else {
 			//	Update directionFacing if the horizontal input is significant enough!
 			if (Mathf.Abs (inputX) > 0.05f) {
@@ -97,26 +97,26 @@ public class Player : MonoBehaviour {
 	}
 
 	void Jump() {
-		// If I'm on the ground, AND I'm not holding a crate...
-		if (feetSensor.IsGrounded && crateHolding==null) {
+		// If I'm on the ground, AND I'm not holding a box...
+		if (feetSensor.IsGrounded && boxHolding==null) {
 			// JUMP!
 			rigidbody.velocity = new Vector2 (rigidbody.velocity.x, rigidbody.velocity.y - JUMP_FORCE);
 		}
 	}
 
-	void InputLogicGrabbingCrates() {
-		// NOT holding a crate...
-		if (crateHolding == null) {
-			// NEXT to a crate and just hit GRAB key?!
-			if (handSensor.CrateTouching!=null && Input.GetKeyDown(KEYCODE_CRATE_GRAB)) {
-				SetCrateHolding(handSensor.CrateTouching);
+	void InputLogicGrabbingBoxes() {
+		// NOT holding a box...
+		if (boxHolding == null) {
+			// NEXT to a box and just hit GRAB key?!
+			if (handSensor.BoxTouching!=null && Input.GetKeyDown(KEYCODE_BOX_GRAB)) {
+				SetBoxHolding(handSensor.BoxTouching);
 			}
 		}
-		// YES holding a crate!
+		// YES holding a box!
 		else {
 			// Just RELEASED GRAB key?!
-			if (Input.GetKeyUp(KEYCODE_CRATE_GRAB)) {
-				SetCrateHolding(null);
+			if (Input.GetKeyUp(KEYCODE_BOX_GRAB)) {
+				SetBoxHolding(null);
 			}
 		}
 	}
@@ -132,7 +132,7 @@ public class Player : MonoBehaviour {
 		TerminalVelocity ();
 		LimitRotation ();
 
-//		if (crateHolding != null) DEBUG_bodySprite.renderer.material.color = Color.blue;//feetSensor.IsGrounded
+//		if (boxHolding != null) DEBUG_bodySprite.renderer.material.color = Color.blue;//feetSensor.IsGrounded
 //		else DEBUG_bodySprite.renderer.material.color = Color.cyan;
 	}
 
@@ -167,18 +167,18 @@ public class Player : MonoBehaviour {
 
 
 	// ================================
-	//	Crates
+	//	Boxes
 	// ================================
-	void SetCrateHolding(Crate tempCrate) {
-		// FIRST, if I'm already HOLDING a crate, tell it it's ungrabbed!
-		if (crateHolding != null) {
-			crateHolding.OnUngrabbed ();
+	void SetBoxHolding(Box tempBox) {
+		// FIRST, if I'm already HOLDING a box, tell it it's ungrabbed!
+		if (boxHolding != null) {
+			boxHolding.OnUngrabbed ();
 		}
-		// Set new crateHolding!
-		crateHolding = tempCrate;
-		// Notify crateHolding that it's been grabbed!
-		if (crateHolding != null) {
-			crateHolding.OnGrabbed (this);
+		// Set new boxHolding!
+		boxHolding = tempBox;
+		// Notify boxHolding that it's been grabbed!
+		if (boxHolding != null) {
+			boxHolding.OnGrabbed (this);
 		}
 	}
 

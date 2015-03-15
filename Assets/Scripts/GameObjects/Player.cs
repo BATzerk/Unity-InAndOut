@@ -6,7 +6,8 @@ public class Player : MonoBehaviour {
 	//	Properties
 	// ================================
 	// Settables
-	float movementSpeed = 200f;
+	float movementSpeedAir = 20f;
+	float movementSpeedGround = 200f;
 	float maxVelX = 300;
 	float maxVelY = 1000;
 	float frictionGround = 0.8f;
@@ -70,6 +71,7 @@ public class Player : MonoBehaviour {
 		
 		// VELOCITY
 		//	Horizontal
+		float movementSpeed = feetSensor.IsGrounded ? movementSpeedGround : movementSpeedAir;
 		Vector3 newVelocity = new Vector2(rigidbody.velocity.x+inputX*movementSpeed, rigidbody.velocity.y);
 		rigidbody.velocity = newVelocity;
 		//	Jump
@@ -130,8 +132,8 @@ public class Player : MonoBehaviour {
 		TerminalVelocity ();
 		LimitRotation ();
 
-		if (crateHolding != null) DEBUG_bodySprite.renderer.material.color = Color.blue;//feetSensor.IsGrounded
-		else DEBUG_bodySprite.renderer.material.color = Color.cyan;
+//		if (crateHolding != null) DEBUG_bodySprite.renderer.material.color = Color.blue;//feetSensor.IsGrounded
+//		else DEBUG_bodySprite.renderer.material.color = Color.cyan;
 	}
 
 	

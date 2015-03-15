@@ -5,8 +5,10 @@ public class LevelController : MonoBehaviour {
 	// Constants
 	private const string TAG_ENTRANCE = "Entrance";
 	private const string TAG_GOAL = "Goal";
+	private const string TAG_MAIN_CAMERA = "MainCamera";
 	private const string TAG_PLAYER = "Player";
 	// Level Object References
+	private GameCamera gameCamera;
 	private Player player;
 	private GameObject entrance;
 	private GameObject goal;
@@ -17,11 +19,13 @@ public class LevelController : MonoBehaviour {
 
 	void ResetLevel() {
 		// Find level objects!
+		gameCamera = GameObject.FindGameObjectWithTag (TAG_MAIN_CAMERA).GetComponent<GameCamera>();
 		entrance = GameObject.FindGameObjectWithTag (TAG_ENTRANCE);
 		goal = GameObject.FindGameObjectWithTag (TAG_GOAL);
 
-		// Create player!
+		// Reset things!
 		ResetPlayer ();
+		gameCamera.Reset (player.transform);
 	}
 	void ResetPlayer() {
 		GameObject playerGO = GameObject.FindGameObjectWithTag (TAG_PLAYER);
@@ -45,3 +49,10 @@ public class LevelController : MonoBehaviour {
 	
 	}
 }
+
+
+
+
+
+
+

@@ -3,7 +3,7 @@ using System.Collections;
 
 public class Box : MonoBehaviour {
 	// Constants
-	private const float GAP_TO_PLAYER = 0f;
+	private const float GAP_TO_PLAYER = 10f;
 	// References
 	private SpriteRenderer spriteRenderer;
 	private Rigidbody2D rigidbody;
@@ -54,7 +54,7 @@ public class Box : MonoBehaviour {
 		myPlayerRef = thisPlayer;
 		SetColorBasedOnGrabVariables ();
 		// Determine holdingOffsetX!
-		if (rigidbody.position.x < myPlayerRef.MyRigidbody.position.x) {
+		if (transform.position.x < myPlayerRef.transform.position.x) {
 			holdingOffsetX = -(myPlayerRef.BodyWidth + this.bodyWidth + GAP_TO_PLAYER) * 0.5f;
 		}
 		else {
@@ -77,9 +77,11 @@ public class Box : MonoBehaviour {
 		// Set my position! Note: If the player is at an angle, then we'll not just be using an x offset but both x and y.
 		float playerRot = Mathf.Deg2Rad * myPlayerRef.MyRigidbody.rotation;
 		// HACKY/TEMPORARY: this constant on player's velocity was totally eyeballed. Might be COMPLETELY off.
-		float targetPosX = (myPlayerRef.MyRigidbody.position.x+Mathf.Cos (playerRot)*holdingOffsetX) + myPlayerRef.MyRigidbody.velocity.x/60;
-		float targetPosY = myPlayerRef.MyRigidbody.position.y;// + Mathf.Sin (playerRot)*holdingOffsetX;
+		float targetPosX = (myPlayerRef.transform.position.x+Mathf.Cos (playerRot)*holdingOffsetX) + myPlayerRef.MyRigidbody.velocity.x/60;
+//		float targetPosX = (myPlayerRef.MyRigidbody.position.x+holdingOffsetX) + myPlayerRef.MyRigidbody.velocity.x/60;
+		float targetPosY = myPlayerRef.transform.position.y;// + Mathf.Sin (playerRot)*holdingOffsetX;
 		rigidbody.position = new Vector2(targetPosX, targetPosY);
+//		rigidbody.velocity = new Vector2(myPlayerRef.MyRigidbody.velocity.x, myPlayerRef.MyRigidbody.velocity.y);
 	}
 }
 

@@ -10,6 +10,7 @@ public class Box : MonoBehaviour {
 	// References (internal)
 	private SpriteRenderer spriteRenderer;
 	private Rigidbody2D rigidbody;
+	GameObject obstructionSensorsGO; // the whole GameObject containing my two obstruction sensors. For rotating independently of me so the sensors actually stay on my left/right sides.
 	BoxObstructionSensor obstSensorL; // Left obstruction sensor
 	BoxObstructionSensor obstSensorR; // Right obstruction sensor
 	SpriteRenderer obstructionDebugSpriteL;
@@ -64,6 +65,7 @@ public class Box : MonoBehaviour {
 	}
 	private void IdentifyComponentsRecursively(Transform t) {
 		if (t.name == "BodySprite") spriteRenderer = t.GetComponent<SpriteRenderer>();
+		else if (t.name == "ObstructionSensors") obstructionSensorsGO = t.gameObject;
 		else if (t.name == "ObstructionSensorL") obstSensorL = t.GetComponent<BoxObstructionSensor>();
 		else if (t.name == "ObstructionSensorR") obstSensorR = t.GetComponent<BoxObstructionSensor>();
 		else if (t.name == "ObstructionDebugSpriteL") obstructionDebugSpriteL = t.GetComponent<SpriteRenderer>();
@@ -128,7 +130,12 @@ public class Box : MonoBehaviour {
 		if (IsObstructionR) obstructionDebugSpriteR.color = Color.red;
 		else obstructionDebugSpriteR.color = Color.gray;
 
-		// TODO: rotate my obstruction sensors!! so they're level with the game.
+		// Rotate my left/right obstruction sensors SELECTIVELY! So, like, once we pass 45 degrees, then ROTATE them so they're not above/below me. Etc.
+		obstructionSensorsGO.transform.localEulerAngles = new Vector3(
+			obstructionSensorsGO.transform.localEulerAngles.x,
+			obstructionSensorsGO.transform.localEulerAngles.y,
+			-Mathf.Round(this.transform.localEulerAngles.z/90f)*90f
+		);
 	}
 	
 	

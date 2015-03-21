@@ -16,27 +16,40 @@ public class Player : MonoBehaviour {
 	private const float MAX_ROTATION = 45f; // how far my body can rotate. We don't want a strict fixed rotation at 0-- leeway is nice.
 	// Constants
 	const KeyCode KEYCODE_BOX_GRAB = KeyCode.LeftShift;
-	// References
+	// Self-References
+	GameObject bodyGO; // Everything I will flip horizontally (for direction facing) will be in here.
 	Rigidbody2D rigidbody; // My physics body
 	PlayerFeetSensor feetSensor; // The sensor at my "feet" that determines if I'm on ground.
 	PlayerHandSensor handSensor; // The sensor at my "hands" that determines if I can grab something in front of me.
-	GameObject DEBUG_bodySprite; // JUST the body
+	PlayerObstructionSensor obstSensorL; // Left obstruction sensor
+	PlayerObstructionSensor obstSensorR; // Right obstruction sensor
+	GameObject DEBUG_bodySprite; // JUST the body image
+	// External References
 	Box boxHolding;
 	// Properties
 	float bodyWidth; // it's exactly how wide the sprite is! Currently used for offseting boxes' positions.
 	int colorID = -1;
 	int directionFacing = 1; // Where I'm facing. -1 is left and 1 is right. It determines my X scale. No other values should be used.
 
-	// Getters
+	// Getters (Private)
 	private bool IsHoldingBox { get { return boxHolding != null; } }
+	private bool IsObstructionL { get { return obstSensorL.IsObstruction; } }
+	private bool IsObstructionR { get { return obstSensorR.IsObstruction; } }
+	// Getters (Public)
 	public float BodyWidth { get { return bodyWidth; } }
 	public Rigidbody2D MyRigidbody { get { return rigidbody; } }
 
 	
-	void SetColorID(int newColorID) {
+	public void SetColorID(int newColorID) {
 		colorID = newColorID;
-		gameObject.layer = newColorID;
+		SetLayerRecursively(this.gameObject, newColorID);
 		DEBUG_bodySprite.renderer.material.color = Colors.GetLayerColor(colorID);
+	}
+	private void SetLayerRecursively(GameObject go, int newLayer) {
+		go.layer = newLayer;
+		foreach (Transform childTransform in go.transform) {
+			SetLayerRecursively(childTransform.gameObject, newLayer);
+		}
 	}
 	
 	
@@ -48,20 +61,26 @@ public class Player : MonoBehaviour {
 	public void Reset() {
 		// Identify components!
 		rigidbody = (GetComponent<Rigidbody2D> ());
-		foreach (Transform t in transform) {
-			if (t.name == "FeetSensor") feetSensor = t.GetComponent<PlayerFeetSensor>();
-			else if (t.name == "HandSensor") handSensor = t.GetComponent<PlayerHandSensor>();
-		}
-		
-		// DEBUG testing stuff. NOTE THAT A LOTTA THIS can't just be removed but will need to be replaced with "proper" implementations
-		DEBUG_bodySprite = GameObject.Find ("Body");
+		// Loop through EVERY child of every child, associating references by name!
+		IdentifyComponentsRecursively(transform);
+
 		bodyWidth = DEBUG_bodySprite.renderer.bounds.size.x;
 		rigidbody.mass = 0.2f;
-
-		SetColorID(1);
 		
 		// Set initial values
 		SetBoxHolding (null);
+	}
+	private void IdentifyComponentsRecursively(Transform t) {
+		if (t.name == "Body") bodyGO = t.gameObject;
+		else if (t.name == "BodySprite") DEBUG_bodySprite = t.gameObject;
+		else if (t.name == "FeetSensor") feetSensor = t.GetComponent<PlayerFeetSensor>();
+		else if (t.name == "HandSensor") handSensor = t.GetComponent<PlayerHandSensor>();
+		else if (t.name == "ObstructionSensorL") obstSensorL = t.GetComponent<PlayerObstructionSensor>();
+		else if (t.name == "ObstructionSensorR") obstSensorR = t.GetComponent<PlayerObstructionSensor>();
+		// Do it again recursively!
+		foreach (Transform childTransform in t) {
+			IdentifyComponentsRecursively(childTransform);
+		}
 	}
 	
 	
@@ -77,7 +96,10 @@ public class Player : MonoBehaviour {
 	//	Input Functions
 	// ================================
 	void InputLogicMovement() {
+		// Get inputX-- and if we have any obstructions, then modify it to 0 appropriately!
 		float inputX = Input.GetAxis ("Horizontal");
+		if (IsObstructionL && inputX<0) { inputX = 0; }
+		if (IsObstructionR && inputX>0) { inputX = 0; }
 		
 		// VELOCITY
 		//	Horizontal
@@ -103,7 +125,7 @@ public class Player : MonoBehaviour {
 			}
 		}
 		//	Apply scale for direction!
-		this.transform.localScale = new Vector2(directionFacing, this.transform.localScale.y);
+		bodyGO.transform.localScale = new Vector2(directionFacing, this.transform.localScale.y);
 	}
 
 	void Jump() {

@@ -39,6 +39,9 @@ public class LevelController : MonoBehaviour {
 		// Reset things!
 		ResetPlayer ();
 		gameCamera.Reset (player.transform);
+
+		// Set initial player colorID!
+		player.SetColorID(2);
 	}
 	void ResetPlayer() {
 		GameObject playerGO = GameObject.FindGameObjectWithTag (TAG_PLAYER);

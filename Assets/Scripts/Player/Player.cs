@@ -29,7 +29,7 @@ public class Player : MonoBehaviour {
 	// Properties
 	float bodyWidth; // it's exactly how wide the sprite is! Currently used for offseting boxes' positions.
 	float bodyHeight; // it's exactly how TALL the player is. Currently used for platform detection.
-	int colorID = -1;
+	int colorID = 0;
 	int directionFacing = 1; // Where I'm facing. -1 is left and 1 is right. It determines my X scale. No other values should be used.
 
 	// Getters (Private)
@@ -147,7 +147,7 @@ public class Player : MonoBehaviour {
 		// NOT holding a box...
 		if (boxHolding == null) {
 			// NEXT to a box and just hit GRAB key?!
-			if (handSensor.BoxTouching!=null && Input.GetKeyDown(KEYCODE_BOX_GRAB)) {
+			if (handSensor.BoxTouching!=null && Input.GetKey(KEYCODE_BOX_GRAB)) {
 				SetBoxHolding(handSensor.BoxTouching);
 			}
 		}

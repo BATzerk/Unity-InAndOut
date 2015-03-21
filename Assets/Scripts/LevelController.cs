@@ -14,10 +14,9 @@ public class LevelController : MonoBehaviour {
 	private GameObject goal;
 
 	void Start () {
-		ResetLevel ();
 	}
 
-	void ResetLevel() {
+	public void ResetLevel() {
 		// Find level objects!
 		gameCamera = GameObject.FindGameObjectWithTag (TAG_MAIN_CAMERA).GetComponent<GameCamera>();
 		entrance = GameObject.FindGameObjectWithTag (TAG_ENTRANCE);
@@ -41,7 +40,7 @@ public class LevelController : MonoBehaviour {
 		gameCamera.Reset (player.transform);
 
 		// Set initial player colorID!
-		player.SetColorID(2);
+		player.SetColorID(0);
 	}
 	void ResetPlayer() {
 		GameObject playerGO = GameObject.FindGameObjectWithTag (TAG_PLAYER);

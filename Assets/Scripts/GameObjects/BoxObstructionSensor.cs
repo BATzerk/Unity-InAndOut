@@ -23,7 +23,6 @@ public class BoxObstructionSensor : MonoBehaviour {
 		if (DoCollideWithOther(other)) {
 			numCurrentCollisions ++;
 		}
-		Debug.Log("OnTriggerStay2D!  " + numCurrentCollisions);
 	}
 	*/
 	void OnTriggerEnter2D(Collider2D other) {

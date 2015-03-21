@@ -165,6 +165,7 @@ public class Player : MonoBehaviour {
 	void FixedUpdate () {
 		ApplyGravity ();
 		ApplyFriction ();
+		HaltForObstructions ();
 		TerminalVelocity ();
 		LimitRotation ();
 	}
@@ -183,6 +184,11 @@ public class Player : MonoBehaviour {
 		if (feetSensor.IsGrounded) {
 			rigidbody.velocity = new Vector2(rigidbody.velocity.x*frictionGround, rigidbody.velocity.y);
 		}
+	}
+	void HaltForObstructions() {
+		// If I've got left/right obstructions, stop my velocity in that direction!
+		if (IsObstructionL && rigidbody.velocity.x<0) { rigidbody.velocity = new Vector2(0, rigidbody.velocity.y); }
+		if (IsObstructionR && rigidbody.velocity.x>0) { rigidbody.velocity = new Vector2(0, rigidbody.velocity.y); }
 	}
 	void TerminalVelocity() {
 		// Limit how fast I can move.

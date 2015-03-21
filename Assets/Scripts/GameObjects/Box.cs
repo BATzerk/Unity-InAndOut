@@ -2,11 +2,19 @@
 using System.Collections;
 
 public class Box : MonoBehaviour {
+	// ================================
+	//	Properties
+	// ================================
 	// Constants
 	private const float GAP_TO_PLAYER = 10f;
-	// References
+	// References (internal)
 	private SpriteRenderer spriteRenderer;
 	private Rigidbody2D rigidbody;
+	BoxObstructionSensor obstSensorL; // Left obstruction sensor
+	BoxObstructionSensor obstSensorR; // Right obstruction sensor
+	SpriteRenderer obstructionDebugSpriteL;
+	SpriteRenderer obstructionDebugSpriteR;
+	// References (external)
 	private Player myPlayerRef; // which player is grabbing me. Passed in on onGrabbing.
 	// Properties
 	private bool isGrabbable; // theoretically grabbable if the player hits SHIFT key
@@ -15,9 +23,12 @@ public class Box : MonoBehaviour {
 	private int colorID = -1;
 	public int ColorID { get { return colorID; } }
 
-	// Getters
+	// Getters (private)
 	private bool IsBeingHeld { get { return myPlayerRef != null; } } // actually being held/grabbed/dragged/sensually caressed right now
+	// Getters (public)
 	public Rigidbody2D MyRigidbody { get { return rigidbody; } }
+	public bool IsObstructionL { get { return obstSensorL.IsObstruction; } }
+	public bool IsObstructionR { get { return obstSensorR.IsObstruction; } }
 	
 	
 	public void SetColorID(int newColorID) {
@@ -27,13 +38,18 @@ public class Box : MonoBehaviour {
 	}
 
 
-
+	
+	
+	// ================================
+	//	Start
+	// ================================
 	void Start () {
-		// Set mass!
+		// Identify components
 		rigidbody = GetComponent<Rigidbody2D> ();
-//		rigidbody.mass = mass;
-
-		spriteRenderer = GetComponentInChildren<SpriteRenderer> ();
+		IdentifyComponentsRecursively(transform);
+		
+		obstSensorL.SetBoxRef(this);
+		obstSensorR.SetBoxRef(this);
 
 		// DEBUG/TEMPORARY stuff
 		bodyWidth = spriteRenderer.bounds.size.x;
@@ -46,14 +62,33 @@ public class Box : MonoBehaviour {
 
 		UpdateVisualsBasedOnGrabVariables ();
 	}
+	private void IdentifyComponentsRecursively(Transform t) {
+		if (t.name == "BodySprite") spriteRenderer = t.GetComponent<SpriteRenderer>();
+		else if (t.name == "ObstructionSensorL") obstSensorL = t.GetComponent<BoxObstructionSensor>();
+		else if (t.name == "ObstructionSensorR") obstSensorR = t.GetComponent<BoxObstructionSensor>();
+		else if (t.name == "ObstructionDebugSpriteL") obstructionDebugSpriteL = t.GetComponent<SpriteRenderer>();
+		else if (t.name == "ObstructionDebugSpriteR") obstructionDebugSpriteR = t.GetComponent<SpriteRenderer>();
+		// Do it again recursively!
+		foreach (Transform childTransform in t) {
+			IdentifyComponentsRecursively(childTransform);
+		}
+	}
 
-
+	
+	
+	// ================================
+	//	Updating Visuals
+	// ================================
 	private void UpdateVisualsBasedOnGrabVariables() {
 //		if (IsBeingHeld) spriteRenderer.renderer.material.color = Color.yellow;
 //		else if (isGrabbable) spriteRenderer.renderer.material.color = Color.cyan;
 //		else spriteRenderer.renderer.material.color = Color.blue;
 	}
 	
+	
+	// ================================
+	//	Grabbing Events
+	// ================================
 	public void OnGrabbable() {
 		isGrabbable = true;
 		UpdateVisualsBasedOnGrabVariables ();
@@ -78,13 +113,29 @@ public class Box : MonoBehaviour {
 		myPlayerRef = null;
 		UpdateVisualsBasedOnGrabVariables ();
 	}
-
-
-
+	
+	
+	
+	
+	// ================================
+	//	Fixed Update
+	// ================================
 	void FixedUpdate() {
 		BoxHoldingMath ();
+
+		if (IsObstructionL) obstructionDebugSpriteL.color = Color.red;
+		else obstructionDebugSpriteL.color = Color.gray;
+		if (IsObstructionR) obstructionDebugSpriteR.color = Color.red;
+		else obstructionDebugSpriteR.color = Color.gray;
+
+		// TODO: rotate my obstruction sensors!! so they're level with the game.
 	}
 	
+	
+	
+	// ================================
+	//	Holding Math
+	// ================================
 	void BoxHoldingMath() {
 		if (myPlayerRef == null) { return; }
 		// Set my position! Note: If the player is at an angle, then we'll not just be using an x offset but both x and y.
@@ -97,6 +148,7 @@ public class Box : MonoBehaviour {
 		rigidbody.position = new Vector2(targetPosX, targetPosY);
 //		rigidbody.velocity = new Vector2(myPlayerRef.MyRigidbody.velocity.x, myPlayerRef.MyRigidbody.velocity.y);
 	}
+
 }
 
 

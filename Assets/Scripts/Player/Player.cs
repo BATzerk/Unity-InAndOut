@@ -23,7 +23,7 @@ public class Player : MonoBehaviour {
 	PlayerHandSensor handSensor; // The sensor at my "hands" that determines if I can grab something in front of me.
 	PlayerObstructionSensor obstSensorL; // Left obstruction sensor
 	PlayerObstructionSensor obstSensorR; // Right obstruction sensor
-	GameObject DEBUG_bodySprite; // JUST the body image
+	GameObject bodySprite; // JUST the body image. Debug currently, basically.
 	// External References
 	Box boxHolding;
 	// Properties
@@ -33,9 +33,10 @@ public class Player : MonoBehaviour {
 
 	// Getters (Private)
 	private bool IsHoldingBox { get { return boxHolding != null; } }
-	private bool IsObstructionL { get { return obstSensorL.IsObstruction; } }
-	private bool IsObstructionR { get { return obstSensorR.IsObstruction; } }
+	private bool IsObstructionL { get { return (boxHolding!=null && boxHolding.IsObstructionL); } }//return obstSensorL.IsObstruction || 
+	private bool IsObstructionR { get { return (boxHolding!=null && boxHolding.IsObstructionR); } }//return obstSensorR.IsObstruction || 
 	// Getters (Public)
+	public Box BoxHolding { get { return boxHolding; } }
 	public float BodyWidth { get { return bodyWidth; } }
 	public Rigidbody2D MyRigidbody { get { return rigidbody; } }
 
@@ -43,13 +44,13 @@ public class Player : MonoBehaviour {
 	public void SetColorID(int newColorID) {
 		colorID = newColorID;
 		SetLayerRecursively(this.gameObject, newColorID);
-		DEBUG_bodySprite.renderer.material.color = Colors.GetLayerColor(colorID);
+		bodySprite.renderer.material.color = Colors.GetLayerColor(colorID);
 	}
 	private void SetLayerRecursively(GameObject go, int newLayer) {
 		go.layer = newLayer;
-		foreach (Transform childTransform in go.transform) {
-			SetLayerRecursively(childTransform.gameObject, newLayer);
-		}
+//		foreach (Transform childTransform in go.transform) {
+//			SetLayerRecursively(childTransform.gameObject, newLayer);
+//		}
 	}
 	
 	
@@ -64,7 +65,10 @@ public class Player : MonoBehaviour {
 		// Loop through EVERY child of every child, associating references by name!
 		IdentifyComponentsRecursively(transform);
 
-		bodyWidth = DEBUG_bodySprite.renderer.bounds.size.x;
+		bodyWidth = bodySprite.renderer.bounds.size.x;
+		obstSensorL.SetPlayerRef(this);
+		obstSensorR.SetPlayerRef(this);
+
 		rigidbody.mass = 0.2f;
 		
 		// Set initial values
@@ -72,7 +76,7 @@ public class Player : MonoBehaviour {
 	}
 	private void IdentifyComponentsRecursively(Transform t) {
 		if (t.name == "Body") bodyGO = t.gameObject;
-		else if (t.name == "BodySprite") DEBUG_bodySprite = t.gameObject;
+		else if (t.name == "BodySprite") bodySprite = t.gameObject;
 		else if (t.name == "FeetSensor") feetSensor = t.GetComponent<PlayerFeetSensor>();
 		else if (t.name == "HandSensor") handSensor = t.GetComponent<PlayerHandSensor>();
 		else if (t.name == "ObstructionSensorL") obstSensorL = t.GetComponent<PlayerObstructionSensor>();
@@ -163,9 +167,6 @@ public class Player : MonoBehaviour {
 		ApplyFriction ();
 		TerminalVelocity ();
 		LimitRotation ();
-
-//		if (boxHolding != null) DEBUG_bodySprite.renderer.material.color = Color.blue;//feetSensor.IsGrounded
-//		else DEBUG_bodySprite.renderer.material.color = Color.cyan;
 	}
 
 	

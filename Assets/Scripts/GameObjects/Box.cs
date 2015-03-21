@@ -12,10 +12,20 @@ public class Box : MonoBehaviour {
 	private bool isGrabbable; // theoretically grabbable if the player hits SHIFT key
 	private float bodyWidth; // how wide this crate is! Currently based on my sprite's size :P
 	private float holdingOffsetX; // the distance between me and myPlayerRef when I'm being held.
+	private int colorID = -1;
+	public int ColorID { get { return colorID; } }
 
 	// Getters
 	private bool IsBeingHeld { get { return myPlayerRef != null; } } // actually being held/grabbed/dragged/sensually caressed right now
 	public Rigidbody2D MyRigidbody { get { return rigidbody; } }
+	
+	
+	void SetColorID(int newColorID) {
+		colorID = newColorID;
+		gameObject.layer = newColorID;
+		spriteRenderer.renderer.material.color = Colors.GetLayerColor(colorID);
+	}
+
 
 
 	void Start () {
@@ -31,28 +41,31 @@ public class Box : MonoBehaviour {
 		// Set initial values
 		isGrabbable = false;
 		myPlayerRef = null;
+		
+		SetColorID(2);
 
-		SetColorBasedOnGrabVariables ();
+		UpdateVisualsBasedOnGrabVariables ();
 	}
 
-	private void SetColorBasedOnGrabVariables() {
-		if (IsBeingHeld) spriteRenderer.renderer.material.color = Color.yellow;
-		else if (isGrabbable) spriteRenderer.renderer.material.color = Color.cyan;
-		else spriteRenderer.renderer.material.color = Color.blue;
+
+	private void UpdateVisualsBasedOnGrabVariables() {
+//		if (IsBeingHeld) spriteRenderer.renderer.material.color = Color.yellow;
+//		else if (isGrabbable) spriteRenderer.renderer.material.color = Color.cyan;
+//		else spriteRenderer.renderer.material.color = Color.blue;
 	}
 	
 	public void OnGrabbable() {
 		isGrabbable = true;
-		SetColorBasedOnGrabVariables ();
+		UpdateVisualsBasedOnGrabVariables ();
 	}
 	public void OnUngrabbable() {
 		isGrabbable = false;
-		SetColorBasedOnGrabVariables ();
+		UpdateVisualsBasedOnGrabVariables ();
 	}
 	
 	public void OnGrabbed(Player thisPlayer) {
 		myPlayerRef = thisPlayer;
-		SetColorBasedOnGrabVariables ();
+		UpdateVisualsBasedOnGrabVariables ();
 		// Determine holdingOffsetX!
 		if (transform.position.x < myPlayerRef.transform.position.x) {
 			holdingOffsetX = -(myPlayerRef.BodyWidth + this.bodyWidth + GAP_TO_PLAYER) * 0.5f;
@@ -63,7 +76,7 @@ public class Box : MonoBehaviour {
 	}
 	public void OnUngrabbed() {
 		myPlayerRef = null;
-		SetColorBasedOnGrabVariables ();
+		UpdateVisualsBasedOnGrabVariables ();
 	}
 
 

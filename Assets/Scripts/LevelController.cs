@@ -23,6 +23,19 @@ public class LevelController : MonoBehaviour {
 		entrance = GameObject.FindGameObjectWithTag (TAG_ENTRANCE);
 		goal = GameObject.FindGameObjectWithTag (TAG_GOAL);
 
+		// Ignore proper physics layers!
+//		Physics2D.IgnoreLayerCollision(0,0);
+		Physics2D.IgnoreLayerCollision(1,1);
+		Physics2D.IgnoreLayerCollision(2,2);
+		Physics2D.IgnoreLayerCollision(3,3);
+		Physics2D.IgnoreLayerCollision(4,4);
+		Physics2D.IgnoreLayerCollision(5,5);
+		Physics2D.IgnoreLayerCollision(6,6);
+		Physics2D.IgnoreLayerCollision(7,7);
+		Physics2D.IgnoreLayerCollision(8,8);
+		Physics2D.IgnoreLayerCollision(9,9);
+		Physics2D.IgnoreLayerCollision(10,10);
+
 		// Reset things!
 		ResetPlayer ();
 		gameCamera.Reset (player.transform);

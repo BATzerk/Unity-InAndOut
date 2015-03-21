@@ -24,12 +24,20 @@ public class Player : MonoBehaviour {
 	Box boxHolding;
 	// Properties
 	float bodyWidth; // it's exactly how wide the sprite is! Currently used for offseting boxes' positions.
+	int colorID = -1;
 	int directionFacing = 1; // Where I'm facing. -1 is left and 1 is right. It determines my X scale. No other values should be used.
 
 	// Getters
 	private bool IsHoldingBox { get { return boxHolding != null; } }
 	public float BodyWidth { get { return bodyWidth; } }
 	public Rigidbody2D MyRigidbody { get { return rigidbody; } }
+
+	
+	void SetColorID(int newColorID) {
+		colorID = newColorID;
+		gameObject.layer = newColorID;
+		DEBUG_bodySprite.renderer.material.color = Colors.GetLayerColor(colorID);
+	}
 	
 	
 	// ================================
@@ -49,6 +57,8 @@ public class Player : MonoBehaviour {
 		DEBUG_bodySprite = GameObject.Find ("Body");
 		bodyWidth = DEBUG_bodySprite.renderer.bounds.size.x;
 		rigidbody.mass = 0.2f;
+
+		SetColorID(1);
 		
 		// Set initial values
 		SetBoxHolding (null);

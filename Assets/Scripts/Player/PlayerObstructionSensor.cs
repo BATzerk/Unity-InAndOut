@@ -4,7 +4,7 @@ using System.Collections;
 public class PlayerObstructionSensor : MonoBehaviour {
 	// References
 	private Player playerRef; // set by player itself!
-	public void SetPlayerRef(Player tempPlayerRef) { playerRef = tempPlayerRef; Debug.Log ("SJDKFLDJ");}
+	public void SetPlayerRef(Player tempPlayerRef) { playerRef = tempPlayerRef; }
 	// Properties
 	private int numCurrentCollisions; // how many things I'm touching at this moment.
 	public bool IsObstruction { get { return numCurrentCollisions > 0; } }

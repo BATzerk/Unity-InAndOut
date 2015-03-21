@@ -151,7 +151,8 @@ public class Box : MonoBehaviour {
 //		float targetPosX = (myPlayerRef.transform.position.x+Mathf.Cos (playerRot)*holdingOffsetX);
 		float targetPosX = (myPlayerRef.MyRigidbody.position.x+holdingOffsetX);
 		targetPosX += myPlayerRef.MyRigidbody.velocity.x/60;
-		float targetPosY = myPlayerRef.transform.position.y;// + Mathf.Sin (playerRot)*holdingOffsetX;
+//		float targetPosY = myPlayerRef.transform.position.y;// + Mathf.Sin (playerRot)*holdingOffsetX;
+		float targetPosY = this.transform.position.y;
 		rigidbody.position = new Vector2(targetPosX, targetPosY);
 //		rigidbody.velocity = new Vector2(myPlayerRef.MyRigidbody.velocity.x, myPlayerRef.MyRigidbody.velocity.y);
 	}

@@ -7,6 +7,8 @@ public class ColorChanger : MonoBehaviour {
 	// Properties
 	[SerializeField]
 	private int colorID;
+	[SerializeField]
+	private string tagToConvert;
 	
 	void Start () {
 		spriteRenderer = GetComponentInChildren<SpriteRenderer>();
@@ -17,9 +19,13 @@ public class ColorChanger : MonoBehaviour {
 	}
 
 	void OnTriggerEnter2D(Collider2D other) {
-		// Just touched a BOX?!
-		if (other.tag == "Box") {
-			other.GetComponent<Box>().SetColorID(colorID);
+		// Just touched the right stuff?
+		if (other.tag == tagToConvert) {
+			// HACK TEMPORARY TODO: Like, have some Colorable component or something? For things that can be colored?
+			Box box = other.GetComponent<Box>();
+			Player player = other.GetComponent<Player>();
+			if (box != null) box.SetColorID(colorID);
+			if (player != null) player.SetColorID(colorID);
 		}
 	}
 

@@ -28,6 +28,7 @@ public class Player : MonoBehaviour {
 	Box boxHolding;
 	// Properties
 	float bodyWidth; // it's exactly how wide the sprite is! Currently used for offseting boxes' positions.
+	float bodyHeight; // it's exactly how TALL the player is. Currently used for platform detection.
 	int colorID = -1;
 	int directionFacing = 1; // Where I'm facing. -1 is left and 1 is right. It determines my X scale. No other values should be used.
 
@@ -38,6 +39,7 @@ public class Player : MonoBehaviour {
 	// Getters (Public)
 	public Box BoxHolding { get { return boxHolding; } }
 	public float BodyWidth { get { return bodyWidth; } }
+	public float BodyHeight { get { return bodyHeight; } }
 	public Rigidbody2D MyRigidbody { get { return rigidbody; } }
 
 	
@@ -64,8 +66,9 @@ public class Player : MonoBehaviour {
 		rigidbody = (GetComponent<Rigidbody2D> ());
 		// Loop through EVERY child of every child, associating references by name!
 		IdentifyComponentsRecursively(transform);
-
+		
 		bodyWidth = bodySprite.renderer.bounds.size.x;
+		bodyHeight = bodySprite.renderer.bounds.size.y;
 		obstSensorL.SetPlayerRef(this);
 		obstSensorR.SetPlayerRef(this);
 

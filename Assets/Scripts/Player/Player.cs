@@ -47,16 +47,16 @@ public class Player : MonoBehaviour {
 	
 	public void SetColorID(int newColorID) {
 		colorID = newColorID;
-		SetLayerRecursively(this.gameObject, WorldProperties.PlayerLayer(colorID));
-		Debug.Log ("Ppppppppplayer setting color to " + gameObject.layer + " " + WorldProperties.PlayerLayer(colorID));
+		SetLayerRecursively(this.gameObject, WorldProperties.RigidbodyLayer(colorID));
+		Debug.Log ("Ppppppppplayer setting color to " + gameObject.layer + " " + WorldProperties.RigidbodyLayer(colorID));
 		bodySprite.material.color = Colors.GetLayerColor(colorID);
 		headSprite.material.color = Colors.GetLayerColor(colorID);
 	}
 	private void SetLayerRecursively(GameObject go, int newLayer) {
 		go.layer = newLayer;
-//		foreach (Transform childTransform in go.transform) {
-//			SetLayerRecursively(childTransform.gameObject, newLayer);
-//		}
+		foreach (Transform childTransform in go.transform) {
+			SetLayerRecursively(childTransform.gameObject, newLayer);
+		}
 	}
 	
 	

@@ -42,7 +42,7 @@ public class BoxObstructionSensor : MonoBehaviour {
 		if (other.gameObject == boxRef.gameObject) return false; // Ignore my box!
 		if (other.tag == "Player") return false; // Ignore the player.
 		if (other.isTrigger) return false; // Ignore all triggers; solid objects only.
-		if (other.gameObject.layer == boxRef.gameObject.layer) return false; // Ignore anything on my same colorID layer!
+//		if (other.gameObject.layer == boxRef.gameObject.layer) return false; // Ignore anything on my same colorID layer!
 		return true;
 	}
 }

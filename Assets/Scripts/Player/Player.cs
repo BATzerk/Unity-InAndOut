@@ -9,7 +9,7 @@ public class Player : MonoBehaviour {
 	float movementSpeedAir = 20f;
 	float movementSpeedGround = 200f;
 	float maxVelX = 300;
-	float maxVelY = 1000;
+	float maxVelY = 99999;
 	float frictionGround = 0.8f;
 	float JUMP_FORCE = -600;
 	float GRAVITY_FORCE = -26;
@@ -23,7 +23,8 @@ public class Player : MonoBehaviour {
 	PlayerHandSensor handSensor; // The sensor at my "hands" that determines if I can grab something in front of me.
 	PlayerObstructionSensor obstSensorL; // Left obstruction sensor
 	PlayerObstructionSensor obstSensorR; // Right obstruction sensor
-	GameObject bodySprite; // JUST the body image. Debug currently, basically.
+	SpriteRenderer bodySprite; // JUST the body image. For coloring, AND for HACK/PLACEHOLDER determining my physics width/height.
+	SpriteRenderer headSprite; // JUST the head. For coloring.
 	// External References
 	Box boxHolding;
 	// Properties
@@ -31,9 +32,11 @@ public class Player : MonoBehaviour {
 	float bodyHeight; // it's exactly how TALL the player is. Currently used for platform detection.
 	int colorID = 0;
 	int directionFacing = 1; // Where I'm facing. -1 is left and 1 is right. It determines my X scale. No other values should be used.
+	Spring springTouching; // whatever spring I'm currently touching. This is set by the SPRING, not by me! (I want to keep as much code out of this class as I can.)
 
 	// Getters (Private)
 	private bool IsHoldingBox { get { return boxHolding != null; } }
+	private bool IsTouchingSpring { get { return springTouching != null; } }
 	private bool IsObstructionL { get { return (boxHolding!=null && boxHolding.IsObstructionL); } }//return obstSensorL.IsObstruction || 
 	private bool IsObstructionR { get { return (boxHolding!=null && boxHolding.IsObstructionR); } }//return obstSensorR.IsObstruction || 
 	// Getters (Public)
@@ -41,12 +44,14 @@ public class Player : MonoBehaviour {
 	public float BodyWidth { get { return bodyWidth; } }
 	public float BodyHeight { get { return bodyHeight; } }
 	public Rigidbody2D MyRigidbody { get { return rigidbody; } }
+	public Spring SpringTouching { get { return springTouching; } set { springTouching = value; } }
 
 	
 	public void SetColorID(int newColorID) {
 		colorID = newColorID;
 		SetLayerRecursively(this.gameObject, newColorID);
-		bodySprite.renderer.material.color = Colors.GetLayerColor(colorID);
+		bodySprite.material.color = Colors.GetLayerColor(colorID);
+		headSprite.material.color = Colors.GetLayerColor(colorID);
 	}
 	private void SetLayerRecursively(GameObject go, int newLayer) {
 		go.layer = newLayer;
@@ -67,8 +72,8 @@ public class Player : MonoBehaviour {
 		// Loop through EVERY child of every child, associating references by name!
 		IdentifyComponentsRecursively(transform);
 		
-		bodyWidth = bodySprite.renderer.bounds.size.x;
-		bodyHeight = bodySprite.renderer.bounds.size.y;
+		bodyWidth = bodySprite.bounds.size.x;
+		bodyHeight = bodySprite.bounds.size.y;
 		obstSensorL.SetPlayerRef(this);
 		obstSensorR.SetPlayerRef(this);
 
@@ -76,10 +81,12 @@ public class Player : MonoBehaviour {
 		
 		// Set initial values
 		SetBoxHolding (null);
+		springTouching = null;
 	}
 	private void IdentifyComponentsRecursively(Transform t) {
 		if (t.name == "Body") bodyGO = t.gameObject;
-		else if (t.name == "BodySprite") bodySprite = t.gameObject;
+		else if (t.name == "BodySprite") bodySprite = t.gameObject.GetComponent<SpriteRenderer>();
+		else if (t.name == "Head") headSprite = t.gameObject.GetComponent<SpriteRenderer>();
 		else if (t.name == "FeetSensor") feetSensor = t.GetComponent<PlayerFeetSensor>();
 		else if (t.name == "HandSensor") handSensor = t.GetComponent<PlayerHandSensor>();
 		else if (t.name == "ObstructionSensorL") obstSensorL = t.GetComponent<PlayerObstructionSensor>();
@@ -139,7 +146,9 @@ public class Player : MonoBehaviour {
 		// If I'm on the ground, AND I'm not holding a box...
 		if (feetSensor.IsGrounded && boxHolding==null) {
 			// JUMP!
-			rigidbody.velocity = new Vector2 (rigidbody.velocity.x, rigidbody.velocity.y - JUMP_FORCE);
+			float jumpForce = JUMP_FORCE;
+			if (IsTouchingSpring) { jumpForce = JUMP_FORCE * SpringTouching.Strength; }
+			rigidbody.velocity = new Vector2 (rigidbody.velocity.x, rigidbody.velocity.y - jumpForce);
 		}
 	}
 

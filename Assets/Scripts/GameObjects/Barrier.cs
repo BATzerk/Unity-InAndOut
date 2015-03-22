@@ -11,6 +11,9 @@ public class Barrier : MonoBehaviour {
 
 
 	void Start () {
+		// DON'T do anything if we're in the editor.
+//		if (Application.platform==RuntimePlatform.WindowsEditor || Application.platform==RuntimePlatform.OSXEditor) { return; }
+
 		bodySprite = GetComponentInChildren<SpriteRenderer>();
 
 		SetColorID(colorID);
@@ -18,6 +21,7 @@ public class Barrier : MonoBehaviour {
 
 
 	void SetColorID(int newColorID) {
+//		if (Application.platform==RuntimePlatform.WindowsEditor || Application.platform==RuntimePlatform.OSXEditor) { return; }
 		colorID = newColorID;
 		SetLayerRecursively(gameObject, colorID);
 		bodySprite.renderer.material.color = Colors.GetLayerColor(colorID);
@@ -29,7 +33,14 @@ public class Barrier : MonoBehaviour {
 		}
 	}
 
-//	void Update() {
-//		bodySprite.renderer.material.color = Colors.GetLayerColor(colorID);
-//	}
+	void Update() {
+		// ONLY update this stuff in EDIT mode!
+		if (Application.platform==RuntimePlatform.WindowsEditor || Application.platform==RuntimePlatform.OSXEditor) {
+			if (bodySprite == null) { bodySprite = GetComponentInChildren<SpriteRenderer>(); }
+
+			Material tempMaterial = new Material(bodySprite.renderer.sharedMaterial);
+			tempMaterial.color = Colors.GetLayerColor(colorID);
+			bodySprite.renderer.sharedMaterial = tempMaterial;
+		}
+	}
 }

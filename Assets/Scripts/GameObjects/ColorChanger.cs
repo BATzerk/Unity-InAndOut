@@ -1,9 +1,10 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+//[ExecuteInEditMode]
 public class ColorChanger : MonoBehaviour {
 	// References
-	SpriteRenderer spriteRenderer;
+	SpriteRenderer bodySprite;
 	// Properties
 	[SerializeField]
 	private int colorID;
@@ -11,11 +12,25 @@ public class ColorChanger : MonoBehaviour {
 	private string tagToConvert;
 	
 	void Start () {
-		spriteRenderer = GetComponentInChildren<SpriteRenderer>();
+		// DON'T do anything if we're in the editor.
+//		if (Application.platform==RuntimePlatform.WindowsEditor || Application.platform==RuntimePlatform.OSXEditor) { return; }
+
+		bodySprite = GetComponentInChildren<SpriteRenderer>();
 
 		// Set ColorID ONCE, now!
 		gameObject.layer = colorID;
-		spriteRenderer.renderer.material.color = Colors.GetLayerColor(colorID);
+		bodySprite.renderer.material.color = Colors.GetLayerColor(colorID);
+	}
+
+	void Update() {
+		// ONLY update this stuff in EDIT mode!
+		if (Application.platform==RuntimePlatform.WindowsEditor || Application.platform==RuntimePlatform.OSXEditor) {
+			if (bodySprite == null) { bodySprite = GetComponentInChildren<SpriteRenderer>(); }
+
+			Material tempMaterial = new Material(bodySprite.renderer.sharedMaterial);
+			tempMaterial.color = Colors.GetLayerColor(colorID);
+			bodySprite.renderer.sharedMaterial = tempMaterial;
+		}
 	}
 
 	void OnTriggerEnter2D(Collider2D other) {

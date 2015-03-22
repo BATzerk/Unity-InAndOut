@@ -39,9 +39,7 @@ public class Box : MonoBehaviour {
 	
 	public void SetColorID(int newColorID) {
 		colorID = newColorID;
-//		gameObject.layer = WorldProperties.RigidbodyLayer(colorID);
 		SetLayerRecursively(this.gameObject, WorldProperties.RigidbodyLayer(colorID));
-		Debug.Log ("Booox setting color to " + gameObject.layer);
 		spriteRenderer.renderer.material.color = Colors.GetLayerColor(colorID);
 	}
 	private void SetLayerRecursively(GameObject go, int newLayer) {

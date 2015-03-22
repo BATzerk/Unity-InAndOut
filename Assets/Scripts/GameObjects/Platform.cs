@@ -47,6 +47,7 @@ public class Platform : MonoBehaviour {
 		// -- PLAYER --
 		if (other.tag == "Player") {
 			numPlayerCollidersTouching ++;
+			Debug.Log("Enter  " + numPlayerCollidersTouching);
 			if (numPlayerCollidersTouching != 1) { return; }
 			// Disable collisions with ALL colliders of this object!
 			Collider2D[] colliders = other.gameObject.GetComponents<Collider2D>();
@@ -65,6 +66,7 @@ public class Platform : MonoBehaviour {
 		// -- PLAYER --
 		if (other.tag == "Player") {
 			numPlayerCollidersTouching --;
+			Debug.Log("xxxxit  " + numPlayerCollidersTouching);
 			if (numPlayerCollidersTouching != 0) { return; }
 			// RE-enable collisions with ALL colliders of this object!
 			Collider2D[] colliders = other.gameObject.GetComponents<Collider2D>();

@@ -23,8 +23,8 @@ public class LevelController : MonoBehaviour {
 		goal = GameObject.FindGameObjectWithTag (TAG_GOAL);
 
 		// Ignore proper physics layers!
-		for (int i=0; i<WorldProperties.NUM_COLORS; i++) {
-			Debug.Log (WorldProperties.BarrierLayer(i) + "  " + WorldProperties.RigidbodyLayer(i));
+		for (int i=1; i<WorldProperties.NUM_COLORS; i++) {
+//			Debug.Log (WorldProperties.BarrierLayer(i) + "  " + WorldProperties.RigidbodyLayer(i));
 			Physics2D.IgnoreLayerCollision(WorldProperties.BarrierLayer(i), WorldProperties.RigidbodyLayer(i), true);
 		}
 //		Physics2D.IgnoreLayerCollision(15, 16);

@@ -5,18 +5,18 @@ public class Player : MonoBehaviour {
 	// ================================
 	//	Properties
 	// ================================
-	// Settables
-	float movementSpeedAir = 20f;
-	float movementSpeedGround = 200f;
-	float maxVelX = 300;
-	float maxVelY = 99999;
-	float frictionGround = 0.8f;
-	float JUMP_FORCE = -600;
-	float GRAVITY_FORCE = -26;
-	private const float MAX_ROTATION = 45f; // how far my body can rotate. We don't want a strict fixed rotation at 0-- leeway is nice.
 	// Constants
-	const KeyCode KEYCODE_BOX_GRAB = KeyCode.LeftShift;
-	// Self-References
+	private const float movementSpeedAir = 20f;
+	private const float movementSpeedGround = 200f;
+	private const float maxVelX = 300;
+	private const float maxVelY = 99999;
+	private const float frictionGround = 0.8f;
+	private const float JUMP_FORCE = -600;
+	private const float MAX_ROTATION = 45f; // how far my body can rotate. We don't want a strict fixed rotation at 0-- leeway is nice.
+	private const KeyCode KEYCODE_BOX_GRAB = KeyCode.LeftShift;
+	// References (external)
+	Box boxHolding;
+	// References (internal)
 	GameObject bodyGO; // Everything I will flip horizontally (for direction facing) will be in here.
 	Rigidbody2D rigidbody; // My physics body
 	PlayerFeetSensor feetSensor; // The sensor at my "feet" that determines if I'm on ground.
@@ -25,8 +25,6 @@ public class Player : MonoBehaviour {
 	PlayerObstructionSensor obstSensorR; // Right obstruction sensor
 	SpriteRenderer bodySprite; // JUST the body image. For coloring, AND for HACK/PLACEHOLDER determining my physics width/height.
 	SpriteRenderer headSprite; // JUST the head. For coloring.
-	// External References
-	Box boxHolding;
 	// Properties
 	float bodyWidth; // it's exactly how wide the sprite is! Currently used for offseting boxes' positions.
 	float bodyHeight; // it's exactly how TALL the player is. Currently used for platform detection.
@@ -35,11 +33,11 @@ public class Player : MonoBehaviour {
 	Spring springTouching; // whatever spring I'm currently touching. This is set by the SPRING, not by me! (I want to keep as much code out of this class as I can.)
 
 	// Getters (Private)
-	private bool IsHoldingBox { get { return boxHolding != null; } }
 	private bool IsTouchingSpring { get { return springTouching != null; } }
 	private bool IsObstructionL { get { return (boxHolding!=null && boxHolding.IsObstructionL); } }//return obstSensorL.IsObstruction || 
 	private bool IsObstructionR { get { return (boxHolding!=null && boxHolding.IsObstructionR); } }//return obstSensorR.IsObstruction || 
 	// Getters (Public)
+	public bool IsHoldingBox { get { return boxHolding != null; } }
 	public Box BoxHolding { get { return boxHolding; } }
 	public float BodyWidth { get { return bodyWidth; } }
 	public float BodyHeight { get { return bodyHeight; } }
@@ -188,7 +186,7 @@ public class Player : MonoBehaviour {
 	// ================================
 	void ApplyGravity() {
 		//if (!isGrounded) {
-			rigidbody.velocity = new Vector2(rigidbody.velocity.x, rigidbody.velocity.y+GRAVITY_FORCE);
+			rigidbody.velocity = new Vector2(rigidbody.velocity.x, rigidbody.velocity.y+WorldProperties.GRAVITY_FORCE);
 		//}
 	}
 	void ApplyFriction() {

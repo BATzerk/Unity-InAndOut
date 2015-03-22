@@ -6,17 +6,19 @@ public class Box : MonoBehaviour {
 	//	Properties
 	// ================================
 	// Constants
-	private const float GAP_TO_PLAYER = 10f;
+	private const float GAP_TO_PLAYER = 6f;
+	private const float BASE_LAUNCH_FORCE = -600f; // Ideally, this SHOULD MATCH player's JUMP_FORCE. So boxes go the same height the player does.
+	// References (external)
+	private Player myPlayerRef; // which player is grabbing me. Passed in on onGrabbing.
+	private Spring springTouching; // the spring I'm touching, set by the spring, not me. It knows me, too. If I'm released while touching a spring, I'll get launched!
 	// References (internal)
 	private SpriteRenderer spriteRenderer;
-	private Rigidbody2D rigidbody;
+	private Rigidbody2D myRigidbody;
 	GameObject obstructionSensorsGO; // the whole GameObject containing my two obstruction sensors. For rotating independently of me so the sensors actually stay on my left/right sides.
 	BoxObstructionSensor obstSensorL; // Left obstruction sensor
 	BoxObstructionSensor obstSensorR; // Right obstruction sensor
 	SpriteRenderer obstructionDebugSpriteL;
 	SpriteRenderer obstructionDebugSpriteR;
-	// References (external)
-	private Player myPlayerRef; // which player is grabbing me. Passed in on onGrabbing.
 	// Properties
 	private bool isGrabbable; // theoretically grabbable if the player hits SHIFT key
 	private float bodyWidth; // how wide this box is! Currently based on my sprite's size :P
@@ -25,11 +27,12 @@ public class Box : MonoBehaviour {
 	public int ColorID { get { return colorID; } }
 
 	// Getters (private)
-	private bool IsBeingHeld { get { return myPlayerRef != null; } } // actually being held/grabbed/dragged/sensually caressed right now
 	// Getters (public)
-	public Rigidbody2D MyRigidbody { get { return rigidbody; } }
+	public bool IsBeingHeld { get { return myPlayerRef != null; } } // actually being held/grabbed/dragged/sensually caressed right now
+	public Rigidbody2D MyRigidbody { get { return myRigidbody; } }
 	public bool IsObstructionL { get { return obstSensorL.IsObstruction; } }
 	public bool IsObstructionR { get { return obstSensorR.IsObstruction; } }
+	public Spring SpringTouching { get { return springTouching; } set { springTouching = value; } }
 	
 	
 	public void SetColorID(int newColorID) {
@@ -46,7 +49,7 @@ public class Box : MonoBehaviour {
 	// ================================
 	void Start () {
 		// Identify components
-		rigidbody = GetComponent<Rigidbody2D> ();
+		myRigidbody = GetComponent<Rigidbody2D> ();
 		IdentifyComponentsRecursively(transform);
 		
 		obstSensorL.SetBoxRef(this);
@@ -58,6 +61,7 @@ public class Box : MonoBehaviour {
 		// Set initial values
 		isGrabbable = false;
 		myPlayerRef = null;
+		springTouching = null;
 		
 		SetColorID(2);
 
@@ -112,8 +116,16 @@ public class Box : MonoBehaviour {
 		}
 	}
 	public void OnUngrabbed() {
+		// Set my velocity to the player's current velocity!
+		myRigidbody.velocity = new Vector2(myPlayerRef.MyRigidbody.velocity.x*0.4f, myRigidbody.velocity.y);
+		// Nullify myPlayerRef
 		myPlayerRef = null;
 		UpdateVisualsBasedOnGrabVariables ();
+		// Touching a spring? Launch me, dawg!
+		if (springTouching != null) {
+			float launchForce = BASE_LAUNCH_FORCE * springTouching.Strength;
+			myRigidbody.velocity = new Vector2 (myRigidbody.velocity.x, myRigidbody.velocity.y - launchForce);
+		}
 	}
 	
 	
@@ -123,6 +135,7 @@ public class Box : MonoBehaviour {
 	//	Fixed Update
 	// ================================
 	void FixedUpdate() {
+		myRigidbody.velocity = new Vector2(myRigidbody.velocity.x, myRigidbody.velocity.y+WorldProperties.GRAVITY_FORCE);
 		BoxHoldingMath ();
 
 		if (IsObstructionL) obstructionDebugSpriteL.color = Color.red;
@@ -146,15 +159,15 @@ public class Box : MonoBehaviour {
 	void BoxHoldingMath() {
 		if (myPlayerRef == null) { return; }
 		// Set my position! Note: If the player is at an angle, then we'll not just be using an x offset but both x and y.
-		float playerRot = Mathf.Deg2Rad * myPlayerRef.MyRigidbody.rotation;
+//		float playerRot = Mathf.Deg2Rad * myPlayerRef.MyRigidbody.rotation;
 		// HACKY/TEMPORARY: this constant on player's velocity was totally eyeballed. Might be COMPLETELY off.
 //		float targetPosX = (myPlayerRef.transform.position.x+Mathf.Cos (playerRot)*holdingOffsetX);
 		float targetPosX = (myPlayerRef.MyRigidbody.position.x+holdingOffsetX);
 		targetPosX += myPlayerRef.MyRigidbody.velocity.x/60;
 //		float targetPosY = myPlayerRef.transform.position.y;// + Mathf.Sin (playerRot)*holdingOffsetX;
 		float targetPosY = this.transform.position.y;
-		rigidbody.position = new Vector2(targetPosX, targetPosY);
-//		rigidbody.velocity = new Vector2(myPlayerRef.MyRigidbody.velocity.x, myPlayerRef.MyRigidbody.velocity.y);
+		myRigidbody.position = new Vector2(targetPosX, targetPosY);
+//		myRigidbody.velocity = new Vector2(myPlayerRef.MyRigidbody.velocity.x, myPlayerRef.MyRigidbody.velocity.y);
 	}
 
 }

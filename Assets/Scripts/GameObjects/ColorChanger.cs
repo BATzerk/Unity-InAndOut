@@ -3,7 +3,7 @@ using System.Collections;
 
 //[ExecuteInEditMode]
 public class ColorChanger : MonoBehaviour {
-	// References
+	// References (internal)
 	SpriteRenderer bodySprite;
 	// Properties
 	[SerializeField]

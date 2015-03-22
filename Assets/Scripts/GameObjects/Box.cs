@@ -6,11 +6,12 @@ public class Box : MonoBehaviour {
 	//	Properties
 	// ================================
 	// Constants
-	private const float GAP_TO_PLAYER = 6f;
+	private const float GAP_TO_PLAYER = 16f;
 	private const float BASE_LAUNCH_FORCE = -600f; // Ideally, this SHOULD MATCH player's JUMP_FORCE. So boxes go the same height the player does.
 	// References (external)
 	private Player myPlayerRef; // which player is grabbing me. Passed in on onGrabbing.
 	private Spring springTouching; // the spring I'm touching, set by the spring, not me. It knows me, too. If I'm released while touching a spring, I'll get launched!
+	private ColorChanger colorChangerTouching; // the colorChanger I'm touching, set by it, not me. If I'm released while touching a ColorChanger, I'll change to that color!
 	// References (internal)
 	private SpriteRenderer spriteRenderer;
 	private Rigidbody2D myRigidbody;
@@ -33,12 +34,21 @@ public class Box : MonoBehaviour {
 	public bool IsObstructionL { get { return obstSensorL.IsObstruction; } }
 	public bool IsObstructionR { get { return obstSensorR.IsObstruction; } }
 	public Spring SpringTouching { get { return springTouching; } set { springTouching = value; } }
+	public ColorChanger ColorChangerTouching { get { return colorChangerTouching; } set { colorChangerTouching = value; } }
 	
 	
 	public void SetColorID(int newColorID) {
 		colorID = newColorID;
-		gameObject.layer = newColorID;
+//		gameObject.layer = WorldProperties.BoxLayer(colorID);
+		SetLayerRecursively(this.gameObject, WorldProperties.BoxLayer(colorID));
+		Debug.Log ("Booox setting color to " + gameObject.layer);
 		spriteRenderer.renderer.material.color = Colors.GetLayerColor(colorID);
+	}
+	private void SetLayerRecursively(GameObject go, int newLayer) {
+		go.layer = newLayer;
+		foreach (Transform childTransform in go.transform) {
+			SetLayerRecursively(childTransform.gameObject, newLayer);
+		}
 	}
 
 
@@ -62,8 +72,9 @@ public class Box : MonoBehaviour {
 		isGrabbable = false;
 		myPlayerRef = null;
 		springTouching = null;
+		colorChangerTouching = null;
 		
-		SetColorID(2);
+		SetColorID(0);
 
 		UpdateVisualsBasedOnGrabVariables ();
 	}
@@ -126,6 +137,10 @@ public class Box : MonoBehaviour {
 			float launchForce = BASE_LAUNCH_FORCE * springTouching.Strength;
 			myRigidbody.velocity = new Vector2 (myRigidbody.velocity.x, myRigidbody.velocity.y - launchForce);
 		}
+		// Touching a ColorChanger? Change my color, Al!
+		if (colorChangerTouching != null) {
+			SetColorID(colorChangerTouching.ColorID);
+		}
 	}
 	
 	
@@ -135,6 +150,7 @@ public class Box : MonoBehaviour {
 	//	Fixed Update
 	// ================================
 	void FixedUpdate() {
+		// Apply gravity
 		myRigidbody.velocity = new Vector2(myRigidbody.velocity.x, myRigidbody.velocity.y+WorldProperties.GRAVITY_FORCE);
 		BoxHoldingMath ();
 

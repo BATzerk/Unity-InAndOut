@@ -23,7 +23,13 @@ public class LevelController : MonoBehaviour {
 		goal = GameObject.FindGameObjectWithTag (TAG_GOAL);
 
 		// Ignore proper physics layers!
-//		Physics2D.IgnoreLayerCollision(0,0);
+		for (int i=0; i<WorldProperties.NUM_COLORS; i++) {
+			Debug.Log (WorldProperties.BarrierLayer(i) + "  " + WorldProperties.BoxLayer(i));
+			Physics2D.IgnoreLayerCollision(WorldProperties.BarrierLayer(i), WorldProperties.BoxLayer(i), true);
+			Physics2D.IgnoreLayerCollision(WorldProperties.BarrierLayer(i), WorldProperties.PlayerLayer(i), true);
+		}
+//		Physics2D.IgnoreLayerCollision(15, 16);
+		/*
 		Physics2D.IgnoreLayerCollision(1,1);
 		Physics2D.IgnoreLayerCollision(2,2);
 		Physics2D.IgnoreLayerCollision(3,3);
@@ -34,6 +40,7 @@ public class LevelController : MonoBehaviour {
 		Physics2D.IgnoreLayerCollision(8,8);
 		Physics2D.IgnoreLayerCollision(9,9);
 		Physics2D.IgnoreLayerCollision(10,10);
+		*/
 
 		// Reset things!
 		ResetPlayer ();

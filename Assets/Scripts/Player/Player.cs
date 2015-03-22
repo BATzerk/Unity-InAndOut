@@ -47,7 +47,8 @@ public class Player : MonoBehaviour {
 	
 	public void SetColorID(int newColorID) {
 		colorID = newColorID;
-		SetLayerRecursively(this.gameObject, newColorID);
+		SetLayerRecursively(this.gameObject, WorldProperties.PlayerLayer(colorID));
+		Debug.Log ("Ppppppppplayer setting color to " + gameObject.layer + " " + WorldProperties.PlayerLayer(colorID));
 		bodySprite.material.color = Colors.GetLayerColor(colorID);
 		headSprite.material.color = Colors.GetLayerColor(colorID);
 	}

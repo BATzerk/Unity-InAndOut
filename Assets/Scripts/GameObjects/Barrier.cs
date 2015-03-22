@@ -23,7 +23,8 @@ public class Barrier : MonoBehaviour {
 	void SetColorID(int newColorID) {
 //		if (Application.platform==RuntimePlatform.WindowsEditor || Application.platform==RuntimePlatform.OSXEditor) { return; }
 		colorID = newColorID;
-		SetLayerRecursively(gameObject, colorID);
+		Debug.Log ("Barrier setting color to " + WorldProperties.BarrierLayer(colorID));
+		SetLayerRecursively(gameObject, WorldProperties.BarrierLayer(colorID));
 		bodySprite.renderer.material.color = Colors.GetLayerColor(colorID);
 	}
 	private void SetLayerRecursively(GameObject go, int newLayer) {
@@ -42,5 +43,9 @@ public class Barrier : MonoBehaviour {
 			tempMaterial.color = Colors.GetLayerColor(colorID);
 			bodySprite.renderer.sharedMaterial = tempMaterial;
 		}
+	}
+
+	void OnTriggerEnter2D(Collider2D other) {
+		Debug.Log("Trigger  " + this.gameObject.layer + "   " + other.gameObject.tag);
 	}
 }

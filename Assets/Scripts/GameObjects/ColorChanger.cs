@@ -10,6 +10,8 @@ public class ColorChanger : MonoBehaviour {
 	private int colorID;
 	[SerializeField]
 	private string tagToConvert;
+
+	public int ColorID { get { return colorID; } }
 	
 	void Start () {
 		// DON'T do anything if we're in the editor.
@@ -35,12 +37,36 @@ public class ColorChanger : MonoBehaviour {
 
 	void OnTriggerEnter2D(Collider2D other) {
 		// Just touched the right stuff?
+		// DEBUG HACK TEMPORARY allow both player AND box.
+//		if (other.tag == "Player" || other.tag=="Box") {
 		if (other.tag == tagToConvert) {
 			// HACK TEMPORARY TODO: Like, have some Colorable component or something? For things that can be colored?
+			// Box
 			Box box = other.GetComponent<Box>();
+			if (box != null) {
+				box.ColorChangerTouching = this;
+				// If the box ISN'T being grabbed, change its color now!
+				if (!box.IsBeingHeld) {
+					box.SetColorID(colorID);
+				}
+			}
+			// Player
 			Player player = other.GetComponent<Player>();
-			if (box != null) box.SetColorID(colorID);
 			if (player != null) player.SetColorID(colorID);
+		}
+	}
+	void OnTriggerExit2D(Collider2D other) {
+		if (other.tag == tagToConvert) {
+			// Box
+			Box box = other.GetComponent<Box>();
+			if (box != null) {
+				// If I'm the ColorChanger this box was touching, then disassociate our relationship!
+				if (box.ColorChangerTouching == this) {
+					box.ColorChangerTouching = null;
+				}
+			}
+			// Player
+			Player player = other.GetComponent<Player>();
 		}
 	}
 

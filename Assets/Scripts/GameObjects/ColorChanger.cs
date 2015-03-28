@@ -38,8 +38,8 @@ public class ColorChanger : MonoBehaviour {
 	void OnTriggerEnter2D(Collider2D other) {
 		// Just touched the right stuff?
 		// DEBUG HACK TEMPORARY allow both player AND box.
-		if (other.tag == "Player" || other.tag=="Box") {
-//		if (other.tag == tagToConvert) {
+//		if (other.tag == "Player" || other.tag=="Box") {
+		if (other.tag == tagToConvert) {
 			// HACK TEMPORARY TODO: Like, have some Colorable component or something? For things that can be colored?
 			// Box
 			Box box = other.GetComponent<Box>();

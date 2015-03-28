@@ -24,22 +24,8 @@ public class LevelController : MonoBehaviour {
 
 		// Ignore proper physics layers!
 		for (int i=1; i<WorldProperties.NUM_COLORS; i++) {
-//			Debug.Log (WorldProperties.BarrierLayer(i) + "  " + WorldProperties.RigidbodyLayer(i));
 			Physics2D.IgnoreLayerCollision(WorldProperties.BarrierLayer(i), WorldProperties.RigidbodyLayer(i), true);
 		}
-//		Physics2D.IgnoreLayerCollision(15, 16);
-		/*
-		Physics2D.IgnoreLayerCollision(1,1);
-		Physics2D.IgnoreLayerCollision(2,2);
-		Physics2D.IgnoreLayerCollision(3,3);
-		Physics2D.IgnoreLayerCollision(4,4);
-		Physics2D.IgnoreLayerCollision(5,5);
-		Physics2D.IgnoreLayerCollision(6,6);
-		Physics2D.IgnoreLayerCollision(7,7);
-		Physics2D.IgnoreLayerCollision(8,8);
-		Physics2D.IgnoreLayerCollision(9,9);
-		Physics2D.IgnoreLayerCollision(10,10);
-		*/
 
 		// Reset things!
 		ResetPlayer ();
@@ -47,6 +33,15 @@ public class LevelController : MonoBehaviour {
 
 		// Set initial player colorID!
 		player.SetColorID(0);
+
+		// Go ahead and color everything in Environment
+		GameObject environmentGO = GameObject.Find("Environment");
+		foreach (Transform t in environmentGO.transform) {
+			SpriteRenderer spriteRenderer = t.gameObject.GetComponent<SpriteRenderer>();
+			if (spriteRenderer != null) {
+				spriteRenderer.color = Colors.GetLayerColor(0);
+			}
+		}
 	}
 	void ResetPlayer() {
 		GameObject playerGO = GameObject.FindGameObjectWithTag (TAG_PLAYER);

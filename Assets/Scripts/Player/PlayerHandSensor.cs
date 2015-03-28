@@ -2,12 +2,15 @@
 using System.Collections;
 
 public class PlayerHandSensor : MonoBehaviour {
+	// References
+	private Player playerRef;
 	// Properties
 	private Box boxTouching;
 	// Getters
 	public Box BoxTouching {
 		get { return boxTouching; }
 	}
+	public void SetPlayerRef(Player player) { playerRef = player; }
 
 
 	void Start () {
@@ -25,10 +28,16 @@ public class PlayerHandSensor : MonoBehaviour {
 	void OnTriggerExit2D(Collider2D other) {
 		// Just left a BOX?!
 		if (other.tag == "Box") {
+			Box thisBox = other.GetComponent<Box>();
 			// Was this the box I was just touching?!
-			if (boxTouching == other.GetComponent<Box>()) {
+			if (boxTouching == thisBox) {
 				// Nullify boxTouching!
 				SetBoxTouching(null);
+			}
+			// Was this the box the player was HOLDING?!?
+			if (playerRef.BoxHolding == thisBox) {
+				// Make player let go of this box, man! It's too far from our hands!
+				playerRef.OnBoxHoldingExitHandSensor();
 			}
 		}
 	}

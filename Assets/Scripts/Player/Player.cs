@@ -73,6 +73,7 @@ public class Player : MonoBehaviour {
 		
 		bodyWidth = bodySprite.bounds.size.x;
 		bodyHeight = bodySprite.bounds.size.y;
+		handSensor.SetPlayerRef(this);
 		obstSensorL.SetPlayerRef(this);
 		obstSensorR.SetPlayerRef(this);
 
@@ -174,6 +175,10 @@ public class Player : MonoBehaviour {
 				SetBoxHolding(null);
 			}
 		}
+	}
+	/** If the box we're holding escapes our grip, relinquish it! */
+	public void OnBoxHoldingExitHandSensor() {
+		SetBoxHolding(null);
 	}
 
 

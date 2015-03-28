@@ -7,7 +7,7 @@ public class Barrier : MonoBehaviour {
 	SpriteRenderer bodySprite;
 	// Properties
 	[SerializeField]
-	private int colorID = -1;
+	private int colorID;
 
 
 	void Start () {

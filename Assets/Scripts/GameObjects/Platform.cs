@@ -7,11 +7,19 @@ public class Platform : MonoBehaviour {
 	private PlatformUnderTrigger underTrigger; // the trigger UNDER the platform that disables/enables the collision with my main boxCollider.
 	private SpriteRenderer bodySprite;
 	// Properties
+	[SerializeField]
+	private int colorID;
 	private float height;
 	private int numPlayerCollidersTouching; // SUPER HACK and not scalable. The player has MULTIPLE colliders. We want to trigger them ALL on/off, but ONLY when the first and last ones touch me.
+	
+	public int ColorID { get { return colorID; } }
+	public BoxCollider2D MyBoxCollider { get { return boxCollider; } }
 
 	void Start () {
+		boxCollider = gameObject.GetComponent<BoxCollider2D>();
 		IdentifyComponentsRecursively(transform);
+
+		SetColorID(colorID);
 
 		height = bodySprite.bounds.size.y;
 		numPlayerCollidersTouching = 0;
@@ -20,11 +28,22 @@ public class Platform : MonoBehaviour {
 	}
 	private void IdentifyComponentsRecursively(Transform t) {
 		if (t.name == "BodySprite") bodySprite = t.GetComponent<SpriteRenderer>();
-		else if (t.name == "Collider") boxCollider = t.GetComponent<BoxCollider2D>();
+//		else if (t.name == "Collider") boxCollider = t.GetComponent<BoxCollider2D>();
 		else if (t.name == "UnderTrigger") underTrigger = t.GetComponent<PlatformUnderTrigger>();
 		// Do it again recursively!
 		foreach (Transform childTransform in t) {
 			IdentifyComponentsRecursively(childTransform);
+		}
+	}
+	void SetColorID(int newColorID) {
+		colorID = newColorID;
+		SetLayerRecursively(gameObject, WorldProperties.RigidbodyLayer(colorID));
+		bodySprite.renderer.material.color = Colors.GetLayerColor(colorID);
+	}
+	private void SetLayerRecursively(GameObject go, int newLayer) {
+		go.layer = newLayer;
+		foreach (Transform childTransform in go.transform) {
+			SetLayerRecursively(childTransform.gameObject, newLayer);
 		}
 	}
 
@@ -47,7 +66,7 @@ public class Platform : MonoBehaviour {
 		// -- PLAYER --
 		if (other.tag == "Player") {
 			numPlayerCollidersTouching ++;
-			Debug.Log("Enter  " + numPlayerCollidersTouching);
+//			Debug.Log("Enter  " + numPlayerCollidersTouching);
 			if (numPlayerCollidersTouching != 1) { return; }
 			// Disable collisions with ALL colliders of this object!
 			Collider2D[] colliders = other.gameObject.GetComponents<Collider2D>();
@@ -66,7 +85,7 @@ public class Platform : MonoBehaviour {
 		// -- PLAYER --
 		if (other.tag == "Player") {
 			numPlayerCollidersTouching --;
-			Debug.Log("xxxxit  " + numPlayerCollidersTouching);
+//			Debug.Log("xxxxit  " + numPlayerCollidersTouching);
 			if (numPlayerCollidersTouching != 0) { return; }
 			// RE-enable collisions with ALL colliders of this object!
 			Collider2D[] colliders = other.gameObject.GetComponents<Collider2D>();

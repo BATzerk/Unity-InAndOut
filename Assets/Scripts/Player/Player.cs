@@ -31,6 +31,7 @@ public class Player : MonoBehaviour {
 	int colorID = 0;
 	int directionFacing = 1; // Where I'm facing. -1 is left and 1 is right. It determines my X scale. No other values should be used.
 	Spring springTouching; // whatever spring I'm currently touching. This is set by the SPRING, not by me! (I want to keep as much code out of this class as I can.)
+	Platform matchingPlatformTouching; // this is the platform I'm on that's the same colorID as I am.
 
 	// Getters (Private)
 	private bool IsTouchingSpring { get { return springTouching != null; } }
@@ -80,6 +81,7 @@ public class Player : MonoBehaviour {
 		// Set initial values
 		SetBoxHolding (null);
 		springTouching = null;
+		matchingPlatformTouching = null;
 	}
 	private void IdentifyComponentsRecursively(Transform t) {
 		if (t.name == "Body") bodyGO = t.gameObject;
@@ -122,6 +124,10 @@ public class Player : MonoBehaviour {
 		if (Input.GetButtonDown ("Jump")) {
 			Jump();
 		}
+		// Pass downwards through platforms
+		if (matchingPlatformTouching!=null && (Input.GetAxis("Vertical")<-0.8f || Input.GetKeyDown(KeyCode.DownArrow))) {
+			PassDownThroughPlatform(matchingPlatformTouching);
+		}
 		
 		// DIRECTION
 		//	Holding box?!
@@ -146,8 +152,11 @@ public class Player : MonoBehaviour {
 			// JUMP!
 			float jumpForce = JUMP_FORCE;
 			if (IsTouchingSpring) { jumpForce = JUMP_FORCE * SpringTouching.Strength; }
-			rigidbody.velocity = new Vector2 (rigidbody.velocity.x, rigidbody.velocity.y - jumpForce);
+			rigidbody.velocity = new Vector2 (rigidbody.velocity.x, -jumpForce); //rigidbody.velocity.y -
 		}
+	}
+	void PassDownThroughPlatform(Platform platform) {
+		EveryMyColliderIgnoreCollision(transform, platform.MyBoxCollider, true);
 	}
 
 	void InputLogicGrabbingBoxes() {
@@ -178,6 +187,8 @@ public class Player : MonoBehaviour {
 		HaltForObstructions ();
 		TerminalVelocity ();
 		LimitRotation ();
+
+		matchingPlatformTouching = null; // I'll say otherwise in the OnTriggerStay2D function.
 	}
 
 	
@@ -212,6 +223,25 @@ public class Player : MonoBehaviour {
 		rigidbody.rotation = Mathf.Clamp (rigidbody.rotation, -MAX_ROTATION,MAX_ROTATION);
 		rigidbody.angularVelocity *= 0.7f;
 		rigidbody.angularVelocity += (-rigidbody.rotation * 2);
+	}
+
+
+	void OnTriggerStay2D(Collider2D other) {
+		if (other.tag == "Platform") {
+			Platform platform = other.gameObject.GetComponent<Platform>();
+			if (platform.ColorID == colorID) {
+				matchingPlatformTouching = platform;
+			}
+		}
+	}
+
+
+	void EveryMyColliderIgnoreCollision(Transform t, Collider2D colliderToIgnore, bool doIgnore) {
+		// Ignore all colliders on this gameObject
+		Collider2D[] myColliders = t.gameObject.GetComponentsInChildren<Collider2D>();
+		foreach (Collider2D collider in myColliders) {
+			Physics2D.IgnoreCollision(collider, colliderToIgnore, doIgnore);
+		}
 	}
 
 

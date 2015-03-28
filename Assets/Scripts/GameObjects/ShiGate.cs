@@ -15,7 +15,7 @@ public class ShiGate : MonoBehaviour {
 	private int numShisOn; // updated in OnShiNumContactsChanged
 	private bool AreAllShisOn { get { return numShisOn >= myShis.Length; } }
 
-	void Start () {
+	public void Initialize () {
 		// Associate references
 		myCollider = GetComponent<BoxCollider2D>();
 		bodySprite = GetComponentInChildren<SpriteRenderer>();

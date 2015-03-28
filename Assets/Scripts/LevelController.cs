@@ -52,6 +52,7 @@ public class LevelController : MonoBehaviour {
 		GameObject[] allShiGOs = GameObject.FindGameObjectsWithTag("Shi");
 		GameObject[] allShiGateGOs = GameObject.FindGameObjectsWithTag("ShiGate");
 		foreach (GameObject shiGateGO in allShiGateGOs) {
+			shiGateGO.GetComponent<ShiGate>().Initialize();
 			shiGateGO.GetComponent<ShiGate>().FindMyShis(allShiGOs);
 		}
 	}

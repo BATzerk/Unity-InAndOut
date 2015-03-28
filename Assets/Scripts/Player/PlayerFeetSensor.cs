@@ -24,11 +24,13 @@ public class PlayerFeetSensor : MonoBehaviour {
 //		isGrounded = true;
 	}
 	void OnTriggerEnter2D(Collider2D other) {
-//		Debug.Log ("Trigger ENTERR");
+		// Ignore certain collisions
+		if (other.tag == "CameraTriggerZone") { return; }
 		numCurrentCollisions ++;
 	}
 	void OnTriggerExit2D(Collider2D other) {
-//		Debug.Log ("Trigger EXXXXXXITT");
+		// Ignore certain collisions
+		if (other.tag == "CameraTriggerZone") { return; }
 		numCurrentCollisions --;
 	}
 }

@@ -126,7 +126,7 @@ public class Player : MonoBehaviour {
 			Jump();
 		}
 		// Pass downwards through platforms
-		if (matchingPlatformTouching!=null && (Input.GetAxis("Vertical")<-0.8f || Input.GetKeyDown(KeyCode.DownArrow))) {
+		if (matchingPlatformTouching!=null && (Input.GetAxis("Vertical")<-0.8f || Input.GetKeyDown(KeyCode.DownArrow) || Input.GetKeyDown(KeyCode.S))) {
 			PassDownThroughPlatform(matchingPlatformTouching);
 		}
 		

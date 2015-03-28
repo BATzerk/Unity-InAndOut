@@ -24,7 +24,8 @@ public class Box : MonoBehaviour {
 	private bool isGrabbable; // theoretically grabbable if the player hits SHIFT key
 	private float bodyWidth; // how wide this box is! Currently based on my sprite's size :P
 	private float holdingOffsetX; // the distance between me and myPlayerRef when I'm being held.
-	private int colorID = -1;
+	[SerializeField]
+	private int colorID;
 	public int ColorID { get { return colorID; } }
 
 	// Getters (private)
@@ -72,7 +73,7 @@ public class Box : MonoBehaviour {
 		springTouching = null;
 		colorChangerTouching = null;
 		
-		SetColorID(0);
+		SetColorID(colorID);
 
 		UpdateVisualsBasedOnGrabVariables ();
 	}

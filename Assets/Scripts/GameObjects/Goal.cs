@@ -7,6 +7,8 @@ public class Goal : MonoBehaviour {
 	// References (internal)
 	private SpriteRenderer bodySprite;
 	// Properties
+	[SerializeField]
+	private string sceneDestination; // The name of the scene file we will go to.
 	bool isPlayerTouchingMe;
 
 	void Start () {
@@ -20,7 +22,7 @@ public class Goal : MonoBehaviour {
 			bodySprite.color = Color.green;
 			// UP ARROW to advance to next level!
 			if (Input.GetKeyDown(KeyCode.UpArrow)) {
-				gameController.LoadNextLevel();
+				gameController.LoadLevel(sceneDestination);
 			}
 		}
 		else {

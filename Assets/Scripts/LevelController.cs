@@ -27,6 +27,9 @@ public class LevelController : MonoBehaviour {
 			Physics2D.IgnoreLayerCollision(WorldProperties.BarrierLayer(i), WorldProperties.RigidbodyLayer(i), true);
 		}
 
+		// ShiGates!
+		ConnectAllShiGatesWithShis();
+
 		// Reset things!
 		ResetPlayer ();
 		gameCamera.Reset (player.transform);
@@ -43,6 +46,16 @@ public class LevelController : MonoBehaviour {
 			}
 		}
 	}
+
+	void ConnectAllShiGatesWithShis() {
+		// For every ShiGate in the level, have it find its shis!
+		GameObject[] allShiGOs = GameObject.FindGameObjectsWithTag("Shi");
+		GameObject[] allShiGateGOs = GameObject.FindGameObjectsWithTag("ShiGate");
+		foreach (GameObject shiGateGO in allShiGateGOs) {
+			shiGateGO.GetComponent<ShiGate>().FindMyShis(allShiGOs);
+		}
+	}
+
 	void ResetPlayer() {
 		GameObject playerGO = GameObject.FindGameObjectWithTag (TAG_PLAYER);
 		// Player ALREADY exists...

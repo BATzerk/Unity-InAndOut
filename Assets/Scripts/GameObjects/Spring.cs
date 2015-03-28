@@ -1,22 +1,33 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class Spring : MonoBehaviour {
 	// References (internal)
 	private SpriteRenderer spriteNeutral; // just the base spring image, with nothing going on.
 	private SpriteRenderer spriteLit; // the spring when it's lit up! When the player is over me.
 	// References (external)
-	Box boxTouchingMe;
+	List<Box> boxesTouchingMe;
 	Player playerTouchingMe;
 	// Properties
 	[SerializeField]
 	public float Strength; // the SCALE of how much velocity the player will have added for his/her jump! So 1 would be no affect, 2 would be wayy up high (remember: doubles velocity, not distance), and 0.5 would be an ironic mini-hop.
 
+	// Getters (private)
+	private bool GetWillLaunchBox() {
+		if (boxesTouchingMe.Count <= 0) { return false; } // No boxes touching me? No launching.
+		foreach (Box box in boxesTouchingMe) {
+			if (!box.IsBeingHeld) { return true; } // At least ONE of these boxes isn't being held?
+		}
+		return false; // Nope. We won't launch a box.
+	}
+
+
 	void Start () {
 		// Associate references
 		IdentifyComponentsRecursively(transform);
 		// Reset things
-		boxTouchingMe = null;
+		boxesTouchingMe = new List<Box>();
 		playerTouchingMe = null;
 	}
 	private void IdentifyComponentsRecursively(Transform t) {
@@ -32,7 +43,7 @@ public class Spring : MonoBehaviour {
 
 	void Update () {
 		// I'll launch a box if it's touching me AND being held.
-		bool willLaunchBox = boxTouchingMe!=null && boxTouchingMe.IsBeingHeld;
+		bool willLaunchBox = GetWillLaunchBox();
 		// I'll launch a player if it's touching me AND not holding a box.
 		bool willLaunchPlayer = playerTouchingMe!=null && !playerTouchingMe.IsHoldingBox;
 
@@ -55,8 +66,9 @@ public class Spring : MonoBehaviour {
 		}
 		// -- Box --
 		else if (other.tag == "Box") {
-			boxTouchingMe = other.GetComponent<Box>();
-			boxTouchingMe.SpringTouching = this;
+			Box thisBox = other.GetComponent<Box>();
+			thisBox.SpringTouching = this;
+			boxesTouchingMe.Add(thisBox);
 		}
 	}
 	void OnTriggerExit2D(Collider2D other) {
@@ -71,11 +83,25 @@ public class Spring : MonoBehaviour {
 		}
 		// -- Box --
 		else if (other.tag == "Box") {
-			Box box = other.GetComponent<Box>();
-			// If this is the same box that was touching me, then nullify the relationship with boxTouchingMe!
-			if (box == boxTouchingMe) {
-				boxTouchingMe.SpringTouching = null;
-				boxTouchingMe = null;
+			Box thisBox = other.GetComponent<Box>();
+			// If this box is touching me, then nullify the relationship between us!
+			if (boxesTouchingMe.Contains(thisBox)) {
+				thisBox.SpringTouching = null;
+				boxesTouchingMe.Remove(thisBox);
+			}
+		}
+	}
+	void OnTriggerStay2D(Collider2D other) {
+		// -- Box --
+		if (other.tag == "Box") {
+			Box thisBox = other.GetComponent<Box>();
+			// If this box isn't being dragged by the player...
+			if (!thisBox.IsBeingHeld) {
+				float boxVelocity = thisBox.MyRigidbody.velocity.magnitude;
+				// If the box is just about not moving, LAUNCH it!!
+				if (boxVelocity < 0.001f) {
+					thisBox.LaunchOffSpring(this);
+				}
 			}
 		}
 	}

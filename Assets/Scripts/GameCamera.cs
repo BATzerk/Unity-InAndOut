@@ -8,6 +8,7 @@ public class GameCamera : MonoBehaviour {
 	private Transform playerTransform;
 	private Camera camera;
 	// Properties
+	private const float posZ = -10;
 
 	void Start () {
 		// Set camera!
@@ -16,6 +17,7 @@ public class GameCamera : MonoBehaviour {
 
 	public void Reset(Transform _playerTransform) {
 		playerTransform = _playerTransform;
+		transform.position = new Vector3(playerTransform.position.x, transform.position.y, posZ);
 	}
 	
 	void FixedUpdate () {
@@ -38,7 +40,7 @@ public class GameCamera : MonoBehaviour {
 
 			float posX = x + (targetPosX-x) / 10f;
 			float posY = transform.position.y;
-			transform.position = new Vector3(posX, posY, -10);
+			transform.position = new Vector3(posX, posY, posZ);
 		}
 	}
 }

@@ -1,9 +1,10 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class Shi : MonoBehaviour {
 	// References (external)
-	ShiGate myShiGateRef; // the dude who matches my channel! (NOTE: if we want MULTIPLE shiGates to pair with shis, we'll have to make this into an array)
+	List<ShiGate> myShiGateRefs; // the dude(s) who match(es) my channel!
 	// References (internal)
 	SpriteRenderer spriteOn;
 	SpriteRenderer spriteOff;
@@ -16,7 +17,10 @@ public class Shi : MonoBehaviour {
 	// Getters
 	public bool IsOn { get { return isOn; } }
 	public int MyChannel { get { return myChannel; } }
-	public void SetMyShiGateRef(ShiGate _myShiGateRef) { myShiGateRef = _myShiGateRef; }
+	public void AddShiGateRef(ShiGate shiGate) {
+		if (myShiGateRefs == null) { myShiGateRefs = new List<ShiGate>(); }
+		myShiGateRefs.Add(shiGate);
+	}
 
 	void Start () {
 		// Associate references
@@ -36,21 +40,28 @@ public class Shi : MonoBehaviour {
 
 	private void UpdateIsOn() {
 		// Update isOn
-		isOn = numContactsTouchingMe>0;
+		isOn = numContactsTouchingMe > 0;
 		// Update image!
-		Debug.Log(isOn);
 		spriteOn.enabled = isOn;
 		spriteOff.enabled = !isOn;
 	}
+
+	private void OnNumContactsTouchingMeChanged() {
+		UpdateIsOn();
+		foreach (ShiGate shiGate in myShiGateRefs) {
+			shiGate.OnShiNumContactsChanged();
+		}
+	}
 	
 	void OnTriggerEnter2D(Collider2D other) {
+		if (other.isTrigger) { return; } // Solid objects only.
 		numContactsTouchingMe ++;
-		UpdateIsOn();
-		myShiGateRef.OnShiNumContactsChanged();
+		OnNumContactsTouchingMeChanged();
 	}
 	void OnTriggerExit2D(Collider2D other) {
+		if (other.isTrigger) { return; } // Solid objects only.
 		numContactsTouchingMe --;
-		UpdateIsOn();
-		myShiGateRef.OnShiNumContactsChanged();
+		OnNumContactsTouchingMeChanged();
 	}
+
 }

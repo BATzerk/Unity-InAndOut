@@ -13,7 +13,8 @@ public class Box : MonoBehaviour {
 	private Spring springTouching; // the spring I'm touching, set by the spring, not me. It knows me, too. If I'm released while touching a spring, I'll get launched!
 	private ColorChanger colorChangerTouching; // the colorChanger I'm touching, set by it, not me. If I'm released while touching a ColorChanger, I'll change to that color!
 	// References (internal)
-	private SpriteRenderer spriteRenderer;
+	private SpriteRenderer bodySprite;
+	private SpriteRenderer glowSprite;
 	private Rigidbody2D myRigidbody;
 	GameObject obstructionSensorsGO; // the whole GameObject containing my two obstruction sensors. For rotating independently of me so the sensors actually stay on my left/right sides.
 	BoxObstructionSensor obstSensorL; // Left obstruction sensor
@@ -27,6 +28,7 @@ public class Box : MonoBehaviour {
 	[SerializeField]
 	private int colorID;
 	public int ColorID { get { return colorID; } }
+	private Color myColor;
 
 	// Getters (private)
 	// Getters (public)
@@ -41,7 +43,9 @@ public class Box : MonoBehaviour {
 	public void SetColorID(int newColorID) {
 		colorID = newColorID;
 		SetLayerRecursively(this.gameObject, WorldProperties.RigidbodyLayer(colorID));
-		spriteRenderer.renderer.material.color = Colors.GetLayerColor(colorID);
+		myColor = Colors.GetLayerColor(colorID);
+		bodySprite.renderer.material.color = myColor;
+		glowSprite.renderer.material.color = myColor;
 	}
 	private void SetLayerRecursively(GameObject go, int newLayer) {
 		go.layer = newLayer;
@@ -65,7 +69,7 @@ public class Box : MonoBehaviour {
 		obstSensorR.SetBoxRef(this);
 
 		// DEBUG/TEMPORARY stuff
-		bodyWidth = spriteRenderer.bounds.size.x;
+		bodyWidth = bodySprite.bounds.size.x;
 
 		// Set initial values
 		isGrabbable = false;
@@ -78,7 +82,8 @@ public class Box : MonoBehaviour {
 		UpdateVisualsBasedOnGrabVariables ();
 	}
 	private void IdentifyComponentsRecursively(Transform t) {
-		if (t.name == "BodySprite") spriteRenderer = t.GetComponent<SpriteRenderer>();
+		if (t.name == "BodySprite") bodySprite = t.GetComponent<SpriteRenderer>();
+		else if (t.name == "GlowSprite") glowSprite = t.GetComponent<SpriteRenderer>();
 		else if (t.name == "ObstructionSensors") obstructionSensorsGO = t.gameObject;
 		else if (t.name == "ObstructionSensorL") obstSensorL = t.GetComponent<BoxObstructionSensor>();
 		else if (t.name == "ObstructionSensorR") obstSensorR = t.GetComponent<BoxObstructionSensor>();
@@ -96,9 +101,9 @@ public class Box : MonoBehaviour {
 	//	Updating Visuals
 	// ================================
 	private void UpdateVisualsBasedOnGrabVariables() {
-//		if (IsBeingHeld) spriteRenderer.renderer.material.color = Color.yellow;
-//		else if (isGrabbable) spriteRenderer.renderer.material.color = Color.cyan;
-//		else spriteRenderer.renderer.material.color = Color.blue;
+		if (IsBeingHeld) glowSprite.renderer.material.color = Color.yellow;
+		else if (isGrabbable) glowSprite.renderer.material.color = myColor;
+		else glowSprite.renderer.material.color = Color.clear;
 	}
 	
 	
@@ -133,15 +138,20 @@ public class Box : MonoBehaviour {
 		UpdateVisualsBasedOnGrabVariables ();
 		// Touching a spring? Launch me, dawg!
 		if (springTouching != null) {
-			float launchForce = BASE_LAUNCH_FORCE * springTouching.Strength;
-			myRigidbody.velocity = new Vector2 (myRigidbody.velocity.x, myRigidbody.velocity.y - launchForce);
+			LaunchOffSpring(springTouching);
 		}
 		// Touching a ColorChanger? Change my color, Al!
 		if (colorChangerTouching != null) {
 			SetColorID(colorChangerTouching.ColorID);
 		}
 	}
-	
+
+
+	public void LaunchOffSpring(Spring spring) {
+		float launchForce = BASE_LAUNCH_FORCE * spring.Strength;
+		myRigidbody.velocity = new Vector2 (myRigidbody.velocity.x, myRigidbody.velocity.y - launchForce);
+	}
+		
 	
 	
 	

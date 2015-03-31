@@ -15,7 +15,7 @@ public class BoxObstructionSensor : MonoBehaviour {
 	}
 	
 	
-	/*
+	//*
 	void FixedUpdate() {
 		numCurrentCollisions = 0;
 	}
@@ -24,19 +24,19 @@ public class BoxObstructionSensor : MonoBehaviour {
 			numCurrentCollisions ++;
 		}
 	}
-	*/
-	void OnTriggerEnter2D(Collider2D other) {
-		// NOT the player?
-		if (DoCollideWithOther(other)) {
-			numCurrentCollisions ++;
-		}
-	}
-	void OnTriggerExit2D(Collider2D other) {
-		// NOT the player?
-		if (DoCollideWithOther(other)) {
-			numCurrentCollisions --;
-		}
-	}
+	//*/
+//	void OnTriggerEnter2D(Collider2D other) {
+//		// NOT the player?
+//		if (DoCollideWithOther(other)) {
+//			numCurrentCollisions ++;
+//		}
+//	}
+//	void OnTriggerExit2D(Collider2D other) {
+//		// NOT the player?
+//		if (DoCollideWithOther(other)) {
+//			numCurrentCollisions --;
+//		}
+//	}
 	
 	private bool DoCollideWithOther(Collider2D other) {
 		if (other.gameObject == boxRef.gameObject) return false; // Ignore my box!

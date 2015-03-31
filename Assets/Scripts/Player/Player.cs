@@ -150,10 +150,14 @@ public class Player : MonoBehaviour {
 	void Jump() {
 		// If I'm on the ground, AND I'm not holding a box...
 		if (feetSensor.IsGrounded && boxHolding==null) {
-			// JUMP!
-			float jumpForce = JUMP_FORCE;
-			if (IsTouchingSpring) { jumpForce = JUMP_FORCE * SpringTouching.Strength; }
-			rigidbody.velocity = new Vector2 (rigidbody.velocity.x, -jumpForce); //rigidbody.velocity.y -
+			// SPRING!
+			if (IsTouchingSpring) {
+				springTouching.LaunchRigidbody(MyRigidbody, JUMP_FORCE);
+			}
+			// REGULAR jump!
+			else {
+				rigidbody.velocity = new Vector2 (rigidbody.velocity.x, -JUMP_FORCE);
+			}
 		}
 	}
 	void PassDownThroughPlatform(Platform platform) {
@@ -234,7 +238,7 @@ public class Player : MonoBehaviour {
 	void OnTriggerStay2D(Collider2D other) {
 		if (other.tag == "Platform") {
 			Platform platform = other.gameObject.GetComponent<Platform>();
-			if (platform.ColorID == colorID) {
+			if (platform.ColorID==0 || platform.ColorID==colorID) {
 				matchingPlatformTouching = platform;
 			}
 		}

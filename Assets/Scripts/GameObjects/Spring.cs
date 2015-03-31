@@ -57,6 +57,15 @@ public class Spring : MonoBehaviour {
 
 
 
+	public void LaunchRigidbody(Rigidbody2D tempRigidbody, float baseLaunchForce) {
+		float launchForce = baseLaunchForce * Strength;
+		float launchForceX = launchForce * Mathf.Sin (Mathf.Deg2Rad*transform.eulerAngles.z);
+		float launchForceY = -launchForce * Mathf.Cos (Mathf.Deg2Rad*transform.eulerAngles.z);
+		tempRigidbody.velocity = new Vector2 (tempRigidbody.velocity.x+launchForceX, tempRigidbody.velocity.y+launchForceY);
+	}
+
+
+
 	void OnTriggerEnter2D(Collider2D other) {
 		// -- Player --
 		if (other.tag == "Player") {
@@ -100,7 +109,7 @@ public class Spring : MonoBehaviour {
 				float boxVelocity = thisBox.MyRigidbody.velocity.magnitude;
 				// If the box is just about not moving, LAUNCH it!!
 				if (boxVelocity < 0.001f) {
-					thisBox.LaunchOffSpring(this);
+					LaunchRigidbody(thisBox.MyRigidbody, Box.BASE_LAUNCH_FORCE);
 				}
 			}
 		}

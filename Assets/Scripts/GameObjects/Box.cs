@@ -7,7 +7,7 @@ public class Box : MonoBehaviour {
 	// ================================
 	// Constants
 	private const float GAP_TO_PLAYER = 16f;
-	private const float BASE_LAUNCH_FORCE = -600f; // Ideally, this SHOULD MATCH player's JUMP_FORCE. So boxes go the same height the player does.
+	public const float BASE_LAUNCH_FORCE = -600f; // Ideally, this SHOULD MATCH player's JUMP_FORCE. So boxes go the same height the player does.
 	// References (external)
 	private Player myPlayerRef; // which player is grabbing me. Passed in on onGrabbing.
 	private Spring springTouching; // the spring I'm touching, set by the spring, not me. It knows me, too. If I'm released while touching a spring, I'll get launched!
@@ -138,7 +138,7 @@ public class Box : MonoBehaviour {
 		UpdateVisualsBasedOnGrabVariables ();
 		// Touching a spring? Launch me, dawg!
 		if (springTouching != null) {
-			LaunchOffSpring(springTouching);
+			springTouching.LaunchRigidbody(myRigidbody, BASE_LAUNCH_FORCE);
 		}
 		// Touching a ColorChanger? Change my color, Al!
 		if (colorChangerTouching != null) {
@@ -146,11 +146,6 @@ public class Box : MonoBehaviour {
 		}
 	}
 
-
-	public void LaunchOffSpring(Spring spring) {
-		float launchForce = BASE_LAUNCH_FORCE * spring.Strength;
-		myRigidbody.velocity = new Vector2 (myRigidbody.velocity.x, myRigidbody.velocity.y - launchForce);
-	}
 		
 	
 	
@@ -184,10 +179,10 @@ public class Box : MonoBehaviour {
 	void BoxHoldingMath() {
 		if (myPlayerRef == null) { return; }
 		// Set my position! Note: If the player is at an angle, then we'll not just be using an x offset but both x and y.
-//		float playerRot = Mathf.Deg2Rad * myPlayerRef.MyRigidbody.rotation;
+		float playerRot = Mathf.Deg2Rad * myPlayerRef.MyRigidbody.rotation;
 		// HACKY/TEMPORARY: this constant on player's velocity was totally eyeballed. Might be COMPLETELY off.
-//		float targetPosX = (myPlayerRef.transform.position.x+Mathf.Cos (playerRot)*holdingOffsetX);
-		float targetPosX = (myPlayerRef.MyRigidbody.position.x+holdingOffsetX);
+		float targetPosX = (myPlayerRef.transform.position.x + Mathf.Cos (-playerRot)*holdingOffsetX);
+//		float targetPosX = (myPlayerRef.MyRigidbody.position.x+holdingOffsetX);
 		targetPosX += myPlayerRef.MyRigidbody.velocity.x/60;
 //		float targetPosY = myPlayerRef.transform.position.y;// + Mathf.Sin (playerRot)*holdingOffsetX;
 		float targetPosY = this.transform.position.y;

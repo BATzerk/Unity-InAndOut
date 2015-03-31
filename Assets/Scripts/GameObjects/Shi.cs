@@ -26,7 +26,9 @@ public class Shi : MonoBehaviour {
 		// Associate references
 		myCollider = GetComponent<BoxCollider2D>();
 		IdentifyComponentsRecursively(transform);
-
+		// Set properties
+		Color myColor = Colors.GetShiColor(myChannel);
+		spriteOff.color = myColor;
 		// Reset variables
 		numContactsTouchingMe = 0;
 		UpdateIsOn();

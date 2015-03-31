@@ -10,6 +10,7 @@ public class ShiGate : MonoBehaviour {
 	// Components
 	ShiGateShiIcon[] shiIcons; // these are made dynamically, when I find my shis.
 	// Properties
+	private Color myColor;
 	[SerializeField]
 	private int myChannel;
 	private int numShisOn; // updated in OnShiNumContactsChanged
@@ -19,6 +20,8 @@ public class ShiGate : MonoBehaviour {
 		// Associate references
 		myCollider = GetComponent<BoxCollider2D>();
 		bodySprite = GetComponentInChildren<SpriteRenderer>();
+		// Set properties
+		myColor = Colors.GetShiColor(myChannel);
 	}
 
 	public void FindMyShis(GameObject[] allShiGOs) {
@@ -39,13 +42,15 @@ public class ShiGate : MonoBehaviour {
 			myShis[i].AddShiGateRef(this);
 			// shiIcon!
 			shiIcons[i] = ((GameObject) Instantiate(shiIconPrefab)).GetComponent<ShiGateShiIcon>();
-			shiIcons[i].Initialize(); // EESH. For whatever reason, Start doesn't happen immediately after it's instantiated. So call an initialize function to get it ready for updating right away.
+			shiIcons[i].Initialize(myChannel); // EESH. For whatever reason, Start doesn't happen immediately after it's instantiated. So call an initialize function to get it ready for updating right away.
 			shiIcons[i].transform.parent = this.transform;
 			// Position it!
 			float shiIconPosY = (i+0.5f-myShis.Length*0.5f) * bodySprite.bounds.size.y*0.7f;
 			shiIcons[i].transform.localPosition = new Vector2(0, shiIconPosY);
 		}
+		// Update everything to the initial state!
 		UpdateShiIcons();
+		OnShiNumContactsChanged();
 	}
 
 	private void UpdateShiIcons() {
@@ -67,7 +72,7 @@ public class ShiGate : MonoBehaviour {
 		}
 		else {
 			myCollider.enabled = true;
-			bodySprite.color = Color.white;
+			bodySprite.color = myColor;
 		}
 		UpdateShiIcons();
 	}

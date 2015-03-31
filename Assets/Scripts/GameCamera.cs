@@ -44,6 +44,10 @@ public class GameCamera : MonoBehaviour {
 		else if (state == "TargetGO") {
 			transformFollowing = targetGO.transform;
 		}
+		// Follow nothing??
+		else if (state == "FollowNothing") {
+			transformFollowing = null;
+		}
 	}
 	
 	
